@@ -41,6 +41,7 @@ class Setup extends AbstractSetup
     {
         $this->renameOption('enforcePasswordComplexityForAdmins','svEnforcePasswordComplexityForAdmins');
         $this->renameOption('passwordToolsCheckTypes','svPasswordToolsCheckTypes');
+        $this->renameOption('KL_PasswordCompare','svShowHidePassword');
         $this->renameOption('KL_PasswordStrengthMeter_min','svPasswordStrengthMeter_min');
         $this->renameOption('KL_PasswordStrengthMeter_str','svPasswordStrengthMeter_str');
         $this->renameOption('KL_PasswordStrengthMeter_force','svPasswordStrengthMeter_force');
