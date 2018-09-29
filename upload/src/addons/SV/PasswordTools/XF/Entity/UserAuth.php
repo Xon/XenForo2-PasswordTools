@@ -1,0 +1,203 @@
+<?php
+
+namespace SV\PasswordTools\XF\Entity;
+
+use XF\Mvc\Entity\Entity;
+use XF\Mvc\Entity\Structure;
+use ZxcvbnPhp\Zxcvbn;
+
+/**
+ * Class UserAuth
+ * 
+ * Extends \XF\Entity\UserAuth
+ *
+ * @package SV\PasswordTools\XF\Entity
+ */
+class UserAuth extends XFCP_UserAuth
+{
+    /**
+     * @param string $password
+     * @param string|null $authClass
+     * @param bool $updatePasswordDate
+     *
+     * @return bool
+     */
+    public function setPassword($password, $authClass = null, $updatePasswordDate = true)
+    {
+        $options = $this->app()->options();
+        $totalChecks = 0;
+        $totalChecksPassed = 0;
+
+        foreach ($options->svPasswordToolsCheckTypes AS $checkType => $check)
+        {
+            if ($check)
+            {
+                $checkMethod = 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType);
+                if (method_exists($this, $checkMethod))
+                {
+                    $totalChecks++;
+                    if ($this->$checkMethod($password))
+                    {
+                        $totalChecksPassed++;
+                    }
+                }
+            }
+        }
+
+        return parent::setPassword($password, $authClass, $updatePasswordDate);
+    }
+
+    /**
+     * @param $password
+     *
+     * @return bool
+     */
+    protected function checkPasswordWithZxcvbn($password)
+    {
+        $options = $this->app()->options();
+
+        $minLength = $options->svPasswordStrengthMeter_min;
+        if (utf8_strlen($password) < $minLength)
+        {
+            $this->error(\XF::phrase('svPasswordTools_please_enter_password_longer_than', [
+                'min_length' => $minLength
+            ]));
+
+            return false;
+        }
+
+        $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
+
+        $blackList = array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
+        $result = $zxcvbn->passwordStrength($password, $blackList);
+
+        if ($result['score'] < $options->svPasswordStrengthMeter_str)
+        {
+            $this->error(\XF::phrase('svPasswordTools_password_too_weak'));
+            return false;
+        }
+
+        if ($options->svPasswordStrengthMeter_force)
+        {
+            /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
+            foreach ($result['match_sequence'] AS $matchSequence)
+            {
+                if ($matchSequence->dictionaryName === 'user_inputs')
+                {
+                    $this->error(\XF::phrase('svPasswordTools_invalid_expression'));
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $password
+     *
+     * @return bool
+     */
+    protected function checkPasswordWithPwned($password)
+    {
+        $options = $this->app()->options();
+        $minimumUsages = (int)$options->svPwnedPasswordReuseCount;
+
+        if ($minimumUsages < 1)
+        {
+            return true;
+        }
+
+        $hash = utf8_strtoupper(sha1($password));
+        $prefix = utf8_substr($hash, 0, 5);
+        $suffix = utf8_substr($hash, 5);
+        $suffixSet = $this->getPwnedPrefixMatches($prefix);
+        if ($suffixSet === null || $suffixSet === false)
+        {
+            return true;
+        }
+
+        if (isset($suffixSet[$suffix]) &&
+            ($useCount = $suffixSet[$suffix]) &&
+            $useCount >= $minimumUsages)
+        {
+            $this->error(\XF::phrase('svPasswordTools_password_known_to_be_compromised_on_at_least_x_accounts', [
+                'count' => $useCount,
+                'countFormatted' => \XF::language()->numberFormat($useCount)
+            ]));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param      $prefix
+     * @param null $cutoff
+     *
+     * @return array|bool
+     */
+    protected function getPwnedPrefixMatches($prefix, $cutoff = null)
+    {
+        $options = $this->app()->options();
+        $db = $this->db();
+
+        if ($cutoff === null)
+        {
+            $pwnedPasswordCacheTime = (int)$options->svPwnedPasswordCacheTime;
+            if ($pwnedPasswordCacheTime > 0)
+            {
+                $cutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;
+            }
+        }
+
+        $cutoff  = $cutoff ?: 0;
+        $suffixes = $db->fetchOne(
+            'SELECT suffixes
+                    FROM xf_sv_pwned_hash_cache
+                    WHERE prefix = ?
+                      AND last_update > ?', [$prefix, $cutoff]
+        );
+
+        if ($suffixes)
+        {
+            $suffixSet = @json_decode($suffixes, true);
+            if (\is_array($suffixSet))
+            {
+                return $suffixSet;
+            }
+        }
+
+        $suffixCount = [];
+
+        $request = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
+            'timeout' => 2,
+            'headers' => [
+                'User-Agent' => 'XenForo/' . \XF::$version . '(' . $options->boardUrl . ')'
+            ]
+        ]);
+
+        if (!$request || $request->getStatusCode() !== 200)
+        {
+            $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'));
+            return false;
+        }
+
+        $text = $request->getBody();
+        $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
+        foreach ($suffixSet as $suffix)
+        {
+            $suffixInfo = explode(':', utf8_trim($suffix));
+            $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
+        }
+
+        $db->query('INSERT INTO xf_sv_pwned_hash_cache (prefix, suffixes, last_update)
+          VALUES (?,?,?)
+          ON DUPLICATE KEY UPDATE
+            suffixes = VALUES(suffixes),
+            last_update = VALUES(last_update)
+         ', [$prefix, json_encode($suffixCount), \XF::$time]);
+
+        return $suffixCount;
+    }
+}

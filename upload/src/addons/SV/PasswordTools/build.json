@@ -4,6 +4,6 @@
     "js/sv/passwordtools"
   ],
   "minify": [
-    "js/sv/passwordtools/password_toggler.js"
+    "js/sv/passwordtools/password_input.js"
   ]
 }

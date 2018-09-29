@@ -1,0 +1,13 @@
+{
+    "group_name": "svPasswordToolsColor",
+    "title": "Strength bar color: Too-easy",
+    "description": "",
+    "property_type": "value",
+    "css_components": [],
+    "value_type": "color",
+    "value_parameters": "",
+    "depends_on": "",
+    "value_group": "",
+    "property_value": "rgb(134, 52, 24)",
+    "display_order": 5
+}
