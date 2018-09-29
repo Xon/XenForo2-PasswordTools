@@ -1,9 +1,9 @@
 {
   "additional_files": [
     "src/addons/SV/Utils/",
-    "js/sv/pf"
+    "js/sv/passwordtools"
   ],
   "minify": [
-    "js/sv/pf/messages.js"
+    "js/sv/passwordtools/password_toggler.js"
   ]
 }
