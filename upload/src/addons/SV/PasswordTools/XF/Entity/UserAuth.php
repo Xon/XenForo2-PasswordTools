@@ -164,7 +164,7 @@ class UserAuth extends XFCP_UserAuth
             }
         }
 
-        $cutoff  = $cutoff ?: 0;
+        $cutoff = $cutoff ?: 0;
         $suffixes = $db->fetchOne(
             'SELECT suffixes
                     FROM xf_sv_pwned_hash_cache
@@ -182,28 +182,39 @@ class UserAuth extends XFCP_UserAuth
         }
 
         $suffixCount = [];
-
-        $request = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
-            'timeout' => 2,
-            'headers' => [
-                'User-Agent' => 'XenForo/' . \XF::$version . '(' . $options->boardUrl . ')'
-            ]
-        ]);
-
-        if (!$request || $request->getStatusCode() !== 200)
+        try
         {
-            $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'));
+            $request = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
+                'timeout' => 2,
+                'headers' => [
+                    'User-Agent' => 'XenForo/' . \XF::$version . '(' . $options->boardUrl . ')'
+                ]
+            ]);
+
+            if (!$request || $request->getStatusCode() !== 200)
+            {
+                $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'));
+
+                return false;
+            }
+
+            $text = $request->getBody();
+            $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
+            foreach ($suffixSet as $suffix)
+            {
+                $suffixInfo = explode(':', utf8_trim($suffix));
+                $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
+            }
+        }
+        catch (\Exception $e)
+        {
+            // since sanitizinig Exception is too hard, and setPassword will contain the password!!, swallow the exception
+            //\XF::logException($e, false);
+
+            $this->error(\XF::phrase('svPasswordTools_API_Failure'));
+
             return false;
         }
-
-        $text = $request->getBody();
-        $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
-        foreach ($suffixSet as $suffix)
-        {
-            $suffixInfo = explode(':', utf8_trim($suffix));
-            $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
-        }
-
         $db->query('INSERT INTO xf_sv_pwned_hash_cache (prefix, suffixes, last_update)
           VALUES (?,?,?)
           ON DUPLICATE KEY UPDATE
