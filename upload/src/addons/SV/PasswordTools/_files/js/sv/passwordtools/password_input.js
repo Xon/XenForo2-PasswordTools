@@ -64,19 +64,17 @@ SV.PasswordTools = SV.PasswordTools || {};
                 return;
             }
 
-            this.$passwordToggler = this.$container.find('.inputPassword-button');
-            if (!this.$passwordToggler.length)
-            {
-                console.error('No password toggler available.');
-                return;
-            }
-
             this.$passwordInput.on('input', XF.proxy(this, 'syncPasswordStrengthBar'));
-            this.$passwordToggler.on('click', XF.proxy(this, 'toggleShowVisibility'));
 
-            if (this.isMobileDevice())
+            this.$passwordToggler = this.$container.find('.inputPassword-button');
+            if (this.$passwordToggler.length)
             {
-                this.toggleShowVisibility();
+                this.$passwordToggler.on('click', XF.proxy(this, 'toggleShowVisibility'));
+
+                if (this.isMobileDevice())
+                {
+                    this.toggleShowVisibility();
+                }
             }
         },
 

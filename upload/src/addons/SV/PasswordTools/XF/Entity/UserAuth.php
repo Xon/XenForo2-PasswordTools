@@ -25,16 +25,20 @@ class UserAuth extends XFCP_UserAuth
     public function setPassword($password, $authClass = null, $updatePasswordDate = true)
     {
         $options = $this->app()->options();
-        $totalChecks = 0;
+
+        $profile = $this->User->getRelationOrDefault('Profile');
+        if ($profile->getOption('admin_edit') && !$options->svEnforcePasswordComplexityForAdmins)
+        {
+            return parent::setPassword($password, $authClass, $updatePasswordDate);
+        }
 
         foreach ($options->svPasswordToolsCheckTypes AS $checkType => $check)
         {
             if ($check)
             {
                 $checkMethodFunc = [$this, 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType)];
-                if (is_callable($checkMethodFunc))
+                if (\is_callable($checkMethodFunc))
                 {
-                    $totalChecks++;
                     if (!$checkMethodFunc($password))
                     {
                         break;
