@@ -8,7 +8,7 @@ use ZxcvbnPhp\Zxcvbn;
 
 /**
  * Class UserAuth
- * 
+ *
  * Extends \XF\Entity\UserAuth
  *
  * @package SV\PasswordTools\XF\Entity
@@ -32,11 +32,11 @@ class UserAuth extends XFCP_UserAuth
         {
             if ($check)
             {
-                $checkMethod = 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType);
-                if (method_exists($this, $checkMethod))
+                $checkMethodFunc = [$this, 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType)];
+                if (is_callable($checkMethodFunc))
                 {
                     $totalChecks++;
-                    if ($this->$checkMethod($password))
+                    if ($checkMethodFunc($password))
                     {
                         $totalChecksPassed++;
                     }
@@ -52,7 +52,7 @@ class UserAuth extends XFCP_UserAuth
      *
      * @return bool
      */
-    protected function checkPasswordWithZxcvbn($password)
+    protected function checkPasswordWithLength($password)
     {
         $options = $this->app()->options();
 
@@ -65,6 +65,19 @@ class UserAuth extends XFCP_UserAuth
 
             return false;
         }
+
+        return true;
+    }
+
+
+    /**
+     * @param $password
+     *
+     * @return bool
+     */
+    protected function checkPasswordWithZxcvbn($password)
+    {
+        $options = $this->app()->options();
 
         $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
 

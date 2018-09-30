@@ -50,6 +50,31 @@ class Setup extends AbstractSetup
         $this->renameOption('pwnedPasswordCacheTime','svPwnedPasswordCacheTime');
     }
 
+    public function upgrade2000000Step3()
+    {
+        /** @var \XF\Entity\Option $option */
+        $option = \XF::finder('XF:Option')->whereId('svPasswordToolsCheckTypes')->fetchOne();
+        if ($option)
+        {
+            $values = $option->option_value;
+            $orderedValues = [
+                'length' => true,
+                'zxcvbn' => $values['zxcvbn'],
+                'pwned'  => $values['pwned'],
+            ];
+            foreach ($values as $key => $val)
+            {
+                if (!isset($orderedValues[$key]))
+                {
+                    $orderedValues[$key] = $val;
+                }
+            }
+            // order matters
+            $option->option_value = $orderedValues;
+            $option->saveIfChanged();
+        }
+    }
+
     /**
      * Drops add-on tables.
      */
