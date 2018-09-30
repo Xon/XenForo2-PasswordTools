@@ -39,9 +39,9 @@ class Templater extends XFCP_Templater
             $this->svPasswordToolsRecursionGuard = true;
             try
             {
-                if (empty($rowOptions['data-xf-init']))
+                if (empty($controlOptions['data-xf-init']))
                 {
-                    $rowOptions['data-xf-init'] = 'password-input';
+                    $controlOptions['data-xf-init'] = 'password-input';
                 }
 
                 unset($controlOptions['type']);
