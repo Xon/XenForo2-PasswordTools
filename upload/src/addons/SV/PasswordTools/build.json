@@ -1,6 +1,7 @@
 {
   "additional_files": [
     "src/addons/SV/Utils/",
+    "js/sv/vendor",
     "js/sv/passwordtools"
   ],
   "minify": [
