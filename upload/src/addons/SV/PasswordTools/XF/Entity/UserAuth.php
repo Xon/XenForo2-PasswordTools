@@ -26,8 +26,8 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = $this->app()->options();
 
-        $profile = $this->User->getRelationOrDefault('Profile');
-        if ($profile->getOption('admin_edit') && !$options->svEnforcePasswordComplexityForAdmins)
+        $profile = $this->User->getRelation('Profile');
+        if ($profile && $profile->getOption('admin_edit') && !$options->svEnforcePasswordComplexityForAdmins)
         {
             return parent::setPassword($password, $authClass, $updatePasswordDate);
         }
