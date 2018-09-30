@@ -106,7 +106,7 @@ class UserAuth extends XFCP_UserAuth
             /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
             foreach ($result['match_sequence'] AS $matchSequence)
             {
-                if ($matchSequence->dictionaryName === 'user_inputs')
+                if (isset($matchSequence->dictionaryName) && $matchSequence->dictionaryName === 'user_inputs')
                 {
                     $this->error(\XF::phrase('svPasswordStrengthMeter_errorInvalidExpression'), 'password');
                     return false;
