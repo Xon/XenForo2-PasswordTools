@@ -90,7 +90,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
         {
-            $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooShort'), 'password');
+            $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooWeak'), 'password');
             return false;
         }
 
