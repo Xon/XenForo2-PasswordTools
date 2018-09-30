@@ -90,7 +90,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
         {
-            $this->error(\XF::phrase('svPasswordTools_password_too_weak'), 'password');
+            $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooShort'), 'password');
             return false;
         }
 
@@ -101,7 +101,7 @@ class UserAuth extends XFCP_UserAuth
             {
                 if ($matchSequence->dictionaryName === 'user_inputs')
                 {
-                    $this->error(\XF::phrase('svPasswordTools_invalid_expression'), 'password');
+                    $this->error(\XF::phrase('svPasswordStrengthMeter_errorInvalidExpression'), 'password');
                     return false;
                 }
             }
