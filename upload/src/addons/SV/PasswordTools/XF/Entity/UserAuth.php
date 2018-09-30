@@ -28,6 +28,8 @@ class UserAuth extends XFCP_UserAuth
         $totalChecks = 0;
         $totalChecksPassed = 0;
 
+        $stopOnFirstFailure = $options-> svStopOnFirstPasswordValidationFailure;
+
         foreach ($options->svPasswordToolsCheckTypes AS $checkType => $check)
         {
             if ($check)
@@ -40,8 +42,17 @@ class UserAuth extends XFCP_UserAuth
                     {
                         $totalChecksPassed++;
                     }
+                    else if ($stopOnFirstFailure)
+                    {
+                        break;
+                    }
                 }
             }
+        }
+
+        if ($totalChecks > $totalChecksPassed || $this->hasErrors())
+        {
+            return false;
         }
 
         return parent::setPassword($password, $authClass, $updatePasswordDate);
