@@ -105,7 +105,7 @@ SV.PasswordTools = SV.PasswordTools || {};
                 this.$passwordToggler.prop('disabled', false);
             }
         },
-        
+
         toggleShowVisibility: function ()
         {
             var classToRemove = '',
@@ -159,7 +159,7 @@ SV.PasswordTools = SV.PasswordTools || {};
 
             var $password = this.$passwordInput.val();
 
-            if ($password.length === 0)
+            if ($password.length < XF.config.passwordMinLength)
             {
                 this.updatePasswordStrengthBar('none');
                 return;
