@@ -26,9 +26,6 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = $this->app()->options();
         $totalChecks = 0;
-        $totalChecksPassed = 0;
-
-        $stopOnFirstFailure = $options-> svStopOnFirstPasswordValidationFailure;
 
         foreach ($options->svPasswordToolsCheckTypes AS $checkType => $check)
         {
@@ -38,11 +35,7 @@ class UserAuth extends XFCP_UserAuth
                 if (is_callable($checkMethodFunc))
                 {
                     $totalChecks++;
-                    if ($checkMethodFunc($password))
-                    {
-                        $totalChecksPassed++;
-                    }
-                    else if ($stopOnFirstFailure)
+                    if (!$checkMethodFunc($password))
                     {
                         break;
                     }
@@ -50,7 +43,7 @@ class UserAuth extends XFCP_UserAuth
             }
         }
 
-        if ($totalChecks > $totalChecksPassed || $this->hasErrors())
+        if ($this->hasErrors())
         {
             return false;
         }
@@ -70,9 +63,9 @@ class UserAuth extends XFCP_UserAuth
         $minLength = $options->svPasswordStrengthMeter_min;
         if (utf8_strlen($password) < $minLength)
         {
-            $this->error(\XF::phrase('svPasswordTools_please_enter_password_longer_than', [
-                'min_length' => $minLength
-            ]));
+            $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
+                'length' => $minLength
+            ]),'password');
 
             return false;
         }
@@ -97,7 +90,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
         {
-            $this->error(\XF::phrase('svPasswordTools_password_too_weak'));
+            $this->error(\XF::phrase('svPasswordTools_password_too_weak'), 'password');
             return false;
         }
 
@@ -108,7 +101,7 @@ class UserAuth extends XFCP_UserAuth
             {
                 if ($matchSequence->dictionaryName === 'user_inputs')
                 {
-                    $this->error(\XF::phrase('svPasswordTools_invalid_expression'));
+                    $this->error(\XF::phrase('svPasswordTools_invalid_expression'), 'password');
                     return false;
                 }
             }
@@ -148,7 +141,7 @@ class UserAuth extends XFCP_UserAuth
             $this->error(\XF::phrase('svPasswordTools_password_known_to_be_compromised_on_at_least_x_accounts', [
                 'count' => $useCount,
                 'countFormatted' => \XF::language()->numberFormat($useCount)
-            ]));
+            ]), 'password');
             return false;
         }
 
@@ -204,7 +197,7 @@ class UserAuth extends XFCP_UserAuth
 
             if (!$request || $request->getStatusCode() !== 200)
             {
-                $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'));
+                $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'), 'password');
 
                 return false;
             }
@@ -222,7 +215,7 @@ class UserAuth extends XFCP_UserAuth
             // since sanitizinig Exception is too hard, and setPassword will contain the password!!, swallow the exception
             //\XF::logException($e, false);
 
-            $this->error(\XF::phrase('svPasswordTools_API_Failure'));
+            $this->error(\XF::phrase('svPasswordTools_API_Failure'), 'password');
 
             return false;
         }
