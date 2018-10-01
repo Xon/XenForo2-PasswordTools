@@ -7,7 +7,7 @@
     "dev": "Atelier Aphelion",
     "dev_url": "https://atelieraphelion.com",
     "faq_url": "",
-    "support_url": "",
+    "support_url": "https://xenforo.com/community/resources/password-tools.6704/",
     "extra_urls": [],
     "require": {
         "XF": [2000070,"XenForo 2.0.0+" ],
