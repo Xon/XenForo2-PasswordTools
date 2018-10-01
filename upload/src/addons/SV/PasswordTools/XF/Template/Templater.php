@@ -43,6 +43,10 @@ class Templater extends XFCP_Templater
                 {
                     $controlOptions['data-xf-init'] = 'password-input';
                 }
+                if (empty($controlOptions['inline']))
+                {
+                    $controlOptions['inline'] = '1';
+                }
 
                 unset($controlOptions['type']);
                 $wrap = $this->processAttributeToRaw($controlOptions, 'wrap');
@@ -85,6 +89,7 @@ class Templater extends XFCP_Templater
         $required = $this->processAttributeToRaw($controlOptions, 'required');
         $disabled = $this->processAttributeToRaw($controlOptions, 'disabled');
         $autofocus = $this->processAttributeToRaw($controlOptions, 'autofocus');
+        $inline = $this->processAttributeToRaw($controlOptions, 'inline');
 
         return $this->renderMacro('public:svPasswordTools_macros', 'password_input' . ($wrap ? '_wrap' : ''), [
             'class' => $class,
@@ -97,6 +102,7 @@ class Templater extends XFCP_Templater
             'disabled' => $disabled,
             'autofocus' => $autofocus,
             'showPasswordStrength' => $showPasswordStrength,
+            'inline' => $inline,
             // unhandled attributes, maybe the template will do something with it?
             'controlOptions' => $controlOptions,
         ]);
