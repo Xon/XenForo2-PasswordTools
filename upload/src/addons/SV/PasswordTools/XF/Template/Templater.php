@@ -2,8 +2,6 @@
 
 namespace SV\PasswordTools\XF\Template;
 
-
-
 /**
  * Extends \XF\Template\Templater
  */
@@ -11,6 +9,12 @@ class Templater extends XFCP_Templater
 {
     protected $svPasswordToolsRecursionGuard = false;
 
+    /**
+     * @param array $controlOptions
+     * @param array $rowOptions
+     *
+     * @return string
+     */
     public function formTextBoxRow(array $controlOptions, array $rowOptions)
     {
         if (!$this->svPasswordToolsRecursionGuard &&
@@ -31,6 +35,11 @@ class Templater extends XFCP_Templater
         return parent::formTextBoxRow($controlOptions, $rowOptions);
     }
 
+    /**
+     * @param array $controlOptions
+     *
+     * @return mixed|string
+     */
     public function formTextBox(array $controlOptions)
     {
         if (!$this->svPasswordToolsRecursionGuard &&
@@ -61,6 +70,12 @@ class Templater extends XFCP_Templater
         return parent::formTextBox($controlOptions);
     }
 
+    /**
+     * @param array $controlOptions
+     * @param array $rowOptions
+     *
+     * @return string
+     */
     public function svPasswordTextBoxRow(array $controlOptions, array $rowOptions)
     {
         $this->addToClassAttribute($rowOptions, 'formRow--input', 'rowclass');
@@ -75,6 +90,12 @@ class Templater extends XFCP_Templater
         return $this->formRow($controlHtml, $rowOptions, $controlId);
     }
 
+    /**
+     * @param array $controlOptions
+     * @param bool  $wrap
+     *
+     * @return mixed|string
+     */
     public function svPasswordTextBox(array $controlOptions, $wrap = false)
     {
         $this->processCodeAttribute($controlOptions);
@@ -90,6 +111,8 @@ class Templater extends XFCP_Templater
         $disabled = $this->processAttributeToRaw($controlOptions, 'disabled');
         $autofocus = $this->processAttributeToRaw($controlOptions, 'autofocus');
         $inline = $this->processAttributeToRaw($controlOptions, 'inline');
+        $placeholder = $this->processAttributeToRaw($controlOptions, 'placeholder');
+        $ariaLabel = $this->processAttributeToRaw($controlOptions, 'aria-label');
 
         return $this->renderMacro('public:svPasswordTools_macros', 'password_input' . ($wrap ? '_wrap' : ''), [
             'class' => $class,
@@ -98,11 +121,13 @@ class Templater extends XFCP_Templater
             'password' => $password,
             'explain' => $explain,
             'label' => $label,
+            'ariaLabel' => $ariaLabel,
             'required' => $required,
             'disabled' => $disabled,
             'autofocus' => $autofocus,
             'showPasswordStrength' => $showPasswordStrength,
             'inline' => $inline,
+            'placeholder' => $placeholder,
             // unhandled attributes, maybe the template will do something with it?
             'controlOptions' => $controlOptions,
         ]);
