@@ -3,6 +3,8 @@
 namespace SV\PasswordTools\XF\Template;
 
 /**
+ * XF2.1 mostly uses formPasswordBox/formPasswordBoxRow, formTextBoxRow/formTextBox with type="password" is only used in one spot (admin login)
+ *
  * Extends \XF\Template\Templater
  */
 class Templater extends XFCP_Templater
