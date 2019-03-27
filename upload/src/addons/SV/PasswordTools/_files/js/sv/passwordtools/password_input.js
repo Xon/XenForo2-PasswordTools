@@ -1,7 +1,7 @@
 var SV = window.SV || {};
 SV.PasswordTools = SV.PasswordTools || {};
 
-!function($, window, document, _undefined)
+(function($, window, document, _undefined)
 {
     "use strict";
 
@@ -232,5 +232,4 @@ SV.PasswordTools = SV.PasswordTools || {};
     });
 
     XF.Element.register('password-input', 'SV.PasswordTools.PasswordInput');
-}
-(jQuery, window, document);
+}) (jQuery, window, document);
