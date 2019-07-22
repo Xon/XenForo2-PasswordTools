@@ -15,7 +15,6 @@ class BlacklistPassword extends AbstractOption
     /**
      * @param Option $option
      * @param array  $htmlParams
-     *
      * @return string
      */
     public static function renderOption(Option $option, array $htmlParams)
@@ -27,14 +26,13 @@ class BlacklistPassword extends AbstractOption
         }
 
         return self::getTemplate('admin:option_template_svPasswordStrengthMeter_blacklist', $option, $htmlParams, [
-            'choices' => $choices,
+            'choices'     => $choices,
             'nextCounter' => count($choices)
         ]);
     }
 
     /**
      * @param array $value
-     *
      * @return bool
      */
     public static function verifyOption(array &$value)

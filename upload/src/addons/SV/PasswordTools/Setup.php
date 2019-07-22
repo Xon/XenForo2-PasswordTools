@@ -39,15 +39,15 @@ class Setup extends AbstractSetup
 
     public function upgrade2000000Step2()
     {
-        $this->renameOption('enforcePasswordComplexityForAdmins','svEnforcePasswordComplexityForAdmins');
-        $this->renameOption('passwordToolsCheckTypes','svPasswordToolsCheckTypes');
-        $this->renameOption('KL_PasswordCompare','svShowHidePassword');
-        $this->renameOption('KL_PasswordStrengthMeter_min','svPasswordStrengthMeter_min');
-        $this->renameOption('KL_PasswordStrengthMeter_str','svPasswordStrengthMeter_str');
-        $this->renameOption('KL_PasswordStrengthMeter_force','svPasswordStrengthMeter_force');
-        $this->renameOption('KL_PasswordStrengthMeter_blacklist','svPasswordStrengthMeter_blacklist');
-        $this->renameOption('pwnedPasswordReuseCount','svPwnedPasswordReuseCount');
-        $this->renameOption('pwnedPasswordCacheTime','svPwnedPasswordCacheTime');
+        $this->renameOption('enforcePasswordComplexityForAdmins', 'svEnforcePasswordComplexityForAdmins');
+        $this->renameOption('passwordToolsCheckTypes', 'svPasswordToolsCheckTypes');
+        $this->renameOption('KL_PasswordCompare', 'svShowHidePassword');
+        $this->renameOption('KL_PasswordStrengthMeter_min', 'svPasswordStrengthMeter_min');
+        $this->renameOption('KL_PasswordStrengthMeter_str', 'svPasswordStrengthMeter_str');
+        $this->renameOption('KL_PasswordStrengthMeter_force', 'svPasswordStrengthMeter_force');
+        $this->renameOption('KL_PasswordStrengthMeter_blacklist', 'svPasswordStrengthMeter_blacklist');
+        $this->renameOption('pwnedPasswordReuseCount', 'svPwnedPasswordReuseCount');
+        $this->renameOption('pwnedPasswordCacheTime', 'svPwnedPasswordCacheTime');
     }
 
     public function upgrade2000000Step3()

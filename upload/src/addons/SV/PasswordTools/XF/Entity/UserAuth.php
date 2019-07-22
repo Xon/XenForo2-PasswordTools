@@ -2,10 +2,6 @@
 
 namespace SV\PasswordTools\XF\Entity;
 
-use XF\Mvc\Entity\Entity;
-use XF\Mvc\Entity\Structure;
-use ZxcvbnPhp\Zxcvbn;
-
 /**
  * Class UserAuth
  *
@@ -16,10 +12,9 @@ use ZxcvbnPhp\Zxcvbn;
 class UserAuth extends XFCP_UserAuth
 {
     /**
-     * @param string $password
+     * @param string      $password
      * @param string|null $authClass
-     * @param bool $updatePasswordDate
-     *
+     * @param bool        $updatePasswordDate
      * @return bool
      */
     public function setPassword($password, $authClass = null, $updatePasswordDate = true)
@@ -60,7 +55,6 @@ class UserAuth extends XFCP_UserAuth
 
     /**
      * @param $password
-     *
      * @return bool
      */
     protected function checkPasswordWithLength($password)
@@ -72,7 +66,7 @@ class UserAuth extends XFCP_UserAuth
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
                 'length' => $minLength
-            ]),'password');
+            ]), 'password');
 
             return false;
         }
@@ -83,7 +77,6 @@ class UserAuth extends XFCP_UserAuth
 
     /**
      * @param $password
-     *
      * @return bool
      */
     protected function checkPasswordWithZxcvbn($password)
@@ -98,6 +91,7 @@ class UserAuth extends XFCP_UserAuth
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooWeak'), 'password');
+
             return false;
         }
 
@@ -109,6 +103,7 @@ class UserAuth extends XFCP_UserAuth
                 if (isset($matchSequence->dictionaryName) && $matchSequence->dictionaryName === 'user_inputs')
                 {
                     $this->error(\XF::phrase('svPasswordStrengthMeter_errorInvalidExpression'), 'password');
+
                     return false;
                 }
             }
@@ -118,9 +113,9 @@ class UserAuth extends XFCP_UserAuth
     }
 
     /**
-     * @param $password
-     *
+     * @param string $password
      * @return bool
+     * @throws \XF\Db\Exception
      */
     protected function checkPasswordWithPwned($password)
     {
@@ -146,9 +141,10 @@ class UserAuth extends XFCP_UserAuth
             $useCount >= $minimumUsages)
         {
             $this->error(\XF::phrase('svPasswordTools_password_known_to_be_compromised_on_at_least_x_accounts', [
-                'count' => $useCount,
+                'count'          => $useCount,
                 'countFormatted' => \XF::language()->numberFormat($useCount)
             ]), 'password');
+
             return false;
         }
 
@@ -156,10 +152,10 @@ class UserAuth extends XFCP_UserAuth
     }
 
     /**
-     * @param      $prefix
-     * @param null $cutoff
-     *
+     * @param string   $prefix
+     * @param null|int $cutoff
      * @return array|bool
+     * @throws \XF\Db\Exception
      */
     protected function getPwnedPrefixMatches($prefix, $cutoff = null)
     {

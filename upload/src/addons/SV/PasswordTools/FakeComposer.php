@@ -18,8 +18,8 @@ class FakeComposer
     protected static function getNamespaces()
     {
         /** @noinspection PhpTraditionalSyntaxArrayLiteralInspection */
-        return array (
-);
+        return [
+        ];
     }
 
     /**
@@ -28,12 +28,12 @@ class FakeComposer
     protected static function getPsr4()
     {
         /** @noinspection PhpTraditionalSyntaxArrayLiteralInspection */
-        return array (
-  'ZxcvbnPhp\\' => 
-  array (
-    0 => 'src/addons/SV/PasswordTools/vendor/bjeavons/zxcvbn-php/src',
-  ),
-);
+        return [
+            'ZxcvbnPhp\\' =>
+                [
+                    0 => 'src/addons/SV/PasswordTools/vendor/bjeavons/zxcvbn-php/src',
+                ],
+        ];
     }
 
     /**
@@ -42,8 +42,8 @@ class FakeComposer
     protected static function getClassMap()
     {
         /** @noinspection PhpTraditionalSyntaxArrayLiteralInspection */
-        return array (
-);
+        return [
+        ];
     }
 
     /**
@@ -52,10 +52,10 @@ class FakeComposer
     protected static function getRequiredFiles()
     {
         /** @noinspection PhpTraditionalSyntaxArrayLiteralInspection */
-        return array (
-);
+        return [
+        ];
     }
-    
+
     /**
      * @param \XF\App $app
      */
@@ -72,13 +72,13 @@ class FakeComposer
         }
 
         \XF::$autoLoader->addClassMap(self::getClassMap());
-        
+
         $xfRoot = \XF::getRootDirectory();
 
         foreach (self::getRequiredFiles() AS $filePath)
         {
             $_filePath = $xfRoot . DIRECTORY_SEPARATOR . $filePath;
-            
+
             if (file_exists($_filePath) && is_readable($_filePath))
             {
                 require $_filePath;

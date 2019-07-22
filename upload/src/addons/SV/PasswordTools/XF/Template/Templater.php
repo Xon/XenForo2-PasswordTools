@@ -14,7 +14,6 @@ class Templater extends XFCP_Templater
     /**
      * @param array $controlOptions
      * @param array $rowOptions
-     *
      * @return string
      */
     public function formTextBoxRow(array $controlOptions, array $rowOptions)
@@ -26,6 +25,7 @@ class Templater extends XFCP_Templater
             try
             {
                 unset($controlOptions['type']);
+
                 return $this->svPasswordTextBoxRow($controlOptions, $rowOptions);
             }
             finally
@@ -39,7 +39,6 @@ class Templater extends XFCP_Templater
 
     /**
      * @param array $controlOptions
-     *
      * @return mixed|string
      */
     public function formTextBox(array $controlOptions)
@@ -61,6 +60,7 @@ class Templater extends XFCP_Templater
 
                 unset($controlOptions['type']);
                 $wrap = $this->processAttributeToRaw($controlOptions, 'wrap');
+
                 return $this->svPasswordTextBox($controlOptions, $wrap);
             }
             finally
@@ -75,7 +75,6 @@ class Templater extends XFCP_Templater
     /**
      * @param array $controlOptions
      * @param array $rowOptions
-     *
      * @return string
      */
     public function svPasswordTextBoxRow(array $controlOptions, array $rowOptions)
@@ -89,13 +88,13 @@ class Templater extends XFCP_Templater
 
         $controlId = $this->assignFormControlId($controlOptions);
         $controlHtml = $this->svPasswordTextBox($controlOptions);
+
         return $this->formRow($controlHtml, $rowOptions, $controlId);
     }
 
     /**
      * @param array $controlOptions
      * @param bool  $wrap
-     *
      * @return mixed|string
      */
     public function svPasswordTextBox(array $controlOptions, $wrap = false)
@@ -117,21 +116,21 @@ class Templater extends XFCP_Templater
         $ariaLabel = $this->processAttributeToRaw($controlOptions, 'aria-label');
 
         return $this->renderMacro('public:svPasswordTools_macros', 'password_input' . ($wrap ? '_wrap' : ''), [
-            'class' => $class,
-            'xfInit' => $xfInit,
-            'inputName' => $name,
-            'password' => $password,
-            'explain' => $explain,
-            'label' => $label,
-            'ariaLabel' => $ariaLabel,
-            'required' => $required,
-            'disabled' => $disabled,
-            'autofocus' => $autofocus,
+            'class'                => $class,
+            'xfInit'               => $xfInit,
+            'inputName'            => $name,
+            'password'             => $password,
+            'explain'              => $explain,
+            'label'                => $label,
+            'ariaLabel'            => $ariaLabel,
+            'required'             => $required,
+            'disabled'             => $disabled,
+            'autofocus'            => $autofocus,
             'showPasswordStrength' => $showPasswordStrength,
-            'inline' => $inline,
-            'placeholder' => $placeholder,
+            'inline'               => $inline,
+            'placeholder'          => $placeholder,
             // unhandled attributes, maybe the template will do something with it?
-            'controlOptions' => $controlOptions,
+            'controlOptions'       => $controlOptions,
         ]);
     }
 }
