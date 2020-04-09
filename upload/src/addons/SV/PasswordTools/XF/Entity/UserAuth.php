@@ -204,19 +204,26 @@ class UserAuth extends XFCP_UserAuth
 
                 return false;
             }
+            else if ($request->getStatusCode() === 404)
+            {
+                // the API shouldn't return 404, but handle it anyway
+                $suffixCount = [];
+            }
             else if ($request->getStatusCode() !== 200)
             {
                 $this->error(\XF::phrase('svPasswordTools_API_Failure_code', ['code' => $request->getStatusCode()]), 'password');
 
                 return false;
             }
-
-            $text = $request->getBody();
-            $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
-            foreach ($suffixSet as $suffix)
+            else
             {
-                $suffixInfo = explode(':', utf8_trim($suffix));
-                $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
+                $text = $request->getBody();
+                $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
+                foreach ($suffixSet as $suffix)
+                {
+                    $suffixInfo = explode(':', utf8_trim($suffix));
+                    $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
+                }
             }
         }
         catch (\Exception $e)
