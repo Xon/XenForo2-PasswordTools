@@ -75,6 +75,11 @@ class Setup extends AbstractSetup
         }
     }
 
+    public function upgrade3020000Step1()
+    {
+        $this->installStep1();
+    }
+
     /**
      * Drops add-on tables.
      */
@@ -98,7 +103,7 @@ class Setup extends AbstractSetup
         $tables['xf_sv_pwned_hash_cache'] = function ($table) {
             /** @var Create|Alter $table */
             $this->addOrChangeColumn($table, 'prefix', 'binary', 5);
-            $this->addOrChangeColumn($table, 'suffixes', 'blob');
+            $this->addOrChangeColumn($table, 'suffixes', 'longblob');
             $this->addOrChangeColumn($table, 'last_update', 'int');
 
             $table->addPrimaryKey('prefix');
