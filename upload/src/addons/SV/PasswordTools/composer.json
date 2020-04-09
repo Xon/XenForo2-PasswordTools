@@ -1,0 +1,8 @@
+{
+    "config": {
+        "vendor-dir": "_vendor"
+    },
+    "require": {
+        "mkopinsky/zxcvbn-php": "^4.4.2"
+    }
+}
