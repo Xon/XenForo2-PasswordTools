@@ -9,7 +9,6 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
-use XF\Entity\User;
 
 class Setup extends AbstractSetup
 {
