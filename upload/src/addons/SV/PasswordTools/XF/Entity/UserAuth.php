@@ -198,9 +198,15 @@ class UserAuth extends XFCP_UserAuth
                 ]
             ]);
 
-            if (!$request || $request->getStatusCode() !== 200)
+            if (!$request)
             {
-                $this->error(\XF::phrase('svPasswordTools_api_failure_when_attempting_to_validate_password_please_try_again_shortly'), 'password');
+                $this->error(\XF::phrase('svPasswordTools_API_Failure'), 'password');
+
+                return false;
+            }
+            else if ($request->getStatusCode() !== 200)
+            {
+                $this->error(\XF::phrase('svPasswordTools_API_Failure_code', ['code' => $request->getStatusCode()]), 'password');
 
                 return false;
             }
