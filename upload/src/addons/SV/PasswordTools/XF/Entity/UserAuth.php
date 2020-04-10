@@ -191,33 +191,41 @@ class UserAuth extends XFCP_UserAuth
         $suffixCount = [];
         try
         {
-            $request = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
+            $response = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
                 'timeout' => 2,
                 'headers' => [
                     'User-Agent' => 'XenForo/' . \XF::$version . '(' . $options->boardUrl . ')'
                 ]
-            ]);
+            ], $error);
 
-            if (!$request)
+            if (!$response)
             {
-                $this->error(\XF::phrase('svPasswordTools_API_Failure'), 'password');
+                $publicError = \XF::phrase('svPasswordTools_API_Failure');
+                $error = $error ?: $publicError->render();
+                \XF::logError($error);
+                $this->error($publicError, 'password');
 
                 return false;
             }
-            else if ($request->getStatusCode() === 404)
+            else if ($response->getStatusCode() === 404)
             {
                 // the API shouldn't return 404, but handle it anyway
                 $suffixCount = [];
+                $error = $error ?: \XF::phrase('svPasswordTools_API_Failure')->render();
+                \XF::logError($error);
             }
-            else if ($request->getStatusCode() !== 200)
+            else if ($response->getStatusCode() !== 200)
             {
-                $this->error(\XF::phrase('svPasswordTools_API_Failure_code', ['code' => $request->getStatusCode()]), 'password');
+                $publicError = \XF::phrase('svPasswordTools_API_Failure_code', ['code' => $response->getStatusCode()]);
+                $error = $error ?: '';
+                \XF::logError("$publicError\n {$error}");
+                $this->error($publicError, 'password');
 
                 return false;
             }
             else
             {
-                $text = $request->getBody();
+                $text = $response->getBody();
                 $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
                 foreach ($suffixSet as $suffix)
                 {
@@ -228,8 +236,8 @@ class UserAuth extends XFCP_UserAuth
         }
         catch (\Exception $e)
         {
-            // since sanitizinig Exception is too hard, and setPassword will contain the password!!, swallow the exception
-            //\XF::logException($e, false);
+            // XF sanitise the stack trace, so this is safe
+            \XF::logException($e);
 
             $this->error(\XF::phrase('svPasswordTools_API_Failure'), 'password');
 
