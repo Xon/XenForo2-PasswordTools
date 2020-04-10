@@ -95,10 +95,10 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        if ($options->svPasswordStrengthMeter_force)
+        if ($options->svPasswordStrengthMeter_force && !empty($result['sequence']))
         {
             /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
-            foreach ($result['match_sequence'] AS $matchSequence)
+            foreach ($result['sequence'] AS $matchSequence)
             {
                 if (isset($matchSequence->dictionaryName) && $matchSequence->dictionaryName === 'user_inputs')
                 {
