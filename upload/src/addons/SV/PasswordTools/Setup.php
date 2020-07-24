@@ -2,7 +2,7 @@
 
 namespace SV\PasswordTools;
 
-use SV\Utils\InstallerHelper;
+use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
