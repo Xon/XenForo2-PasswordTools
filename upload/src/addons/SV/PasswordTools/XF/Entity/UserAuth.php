@@ -15,9 +15,10 @@ class UserAuth extends XFCP_UserAuth
      * @param string      $password
      * @param string|null $authClass
      * @param bool        $updatePasswordDate
+     * @param bool        $allowReuse
      * @return bool
      */
-    public function setPassword($password, $authClass = null, $updatePasswordDate = true)
+    public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
         $options = $this->app()->options();
 
