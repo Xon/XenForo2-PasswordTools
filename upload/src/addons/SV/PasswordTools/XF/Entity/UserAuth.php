@@ -12,13 +12,12 @@ namespace SV\PasswordTools\XF\Entity;
 class UserAuth extends XFCP_UserAuth
 {
     /**
-     * @param string      $password
-     * @param string|null $authClass
-     * @param bool        $updatePasswordDate
-     * @param bool        $allowReuse
+     * @param string   $password
+     * @param int      $updatePasswordDate
+     * @param \Closure $parentCallable
      * @return bool
      */
-    public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
+    public function svCheckPasswordOnSet($password, $updatePasswordDate, \Closure $parentCallable)
     {
         $options = $this->app()->options();
 
@@ -27,7 +26,7 @@ class UserAuth extends XFCP_UserAuth
             $profile = $this->User->getRelation('Profile');
             if (!$updatePasswordDate || $profile && $profile->getOption('admin_edit') && !$options->svEnforcePasswordComplexityForAdmins)
             {
-                return parent::setPassword($password, $authClass, $updatePasswordDate);
+                return $parentCallable();
             }
         }
 
@@ -51,7 +50,7 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        return parent::setPassword($password, $authClass, $updatePasswordDate);
+        return $parentCallable();
     }
 
     /**

@@ -11,6 +11,7 @@ namespace SV\PasswordTools\XF\Cron
 namespace SV\PasswordTools\XF\Entity
 {
 	class XFCP_UserAuth extends \XF\Entity\UserAuth {}
+	class XFCP_UserAuthCompatPatch extends \XF\Entity\UserAuth {}
 }
 
 namespace SV\PasswordTools\XF\Template
