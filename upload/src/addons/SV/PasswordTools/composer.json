@@ -3,6 +3,7 @@
         "vendor-dir": "_vendor"
     },
     "require": {
-        "mkopinsky/zxcvbn-php": "^4.4.2"
+        "bjeavons/zxcvbn-php": "^1.2.0",
+        "ext-json": "*"
     }
 }
