@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection RedundantSuppression */
 
 namespace SV\PasswordTools\XF\Entity;
 
@@ -11,7 +11,12 @@ if (\XF::$versionId < 2020000)
      */
     class UserAuthCompatPatch extends XFCP_UserAuthCompatPatch
     {
-        /** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
+        /**
+         * @noinspection PhpMethodParametersCountMismatchInspection
+         * @noinspection PhpSignatureMismatchDuringInheritanceInspection
+         * @noinspection PhpMissingReturnTypeInspection
+         * @noinspection PhpDocSignatureInspection
+         */
         public function setPassword($password, $authClass = null, $updatePasswordDate = true)
         {
             return $this->svCheckPasswordOnSet($password, $updatePasswordDate, function () use ($password, $authClass, $updatePasswordDate) {
@@ -29,6 +34,12 @@ else
      */
     class UserAuthCompatPatch extends XFCP_UserAuthCompatPatch
     {
+        /**
+         * @noinspection PhpMethodParametersCountMismatchInspection
+         * @noinspection PhpSignatureMismatchDuringInheritanceInspection
+         * @noinspection PhpMissingReturnTypeInspection
+         * @noinspection PhpDocSignatureInspection
+         */
         public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
         {
             return $this->svCheckPasswordOnSet($password, $updatePasswordDate, function () use ($password, $authClass, $updatePasswordDate, $allowReuse) {
