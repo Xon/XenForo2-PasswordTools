@@ -6,11 +6,7 @@ use XF\Job\AbstractJob;
 
 class PasswordCleanup extends AbstractJob
 {
-
-    /**
-     * @inheritDoc
-     */
-    public function run($maxRunTime)
+    public function run($maxRunTime): \XF\Job\JobResult
     {
         $pwnedPasswordCacheTime = (int)\XF::options()->svPwnedPasswordCacheTime;
         $this->doCleanup($pwnedPasswordCacheTime);
@@ -18,11 +14,7 @@ class PasswordCleanup extends AbstractJob
         return $this->complete();
     }
 
-    /**
-     * @param int $days
-     * @throws \XF\Db\Exception
-     */
-    protected function doCleanup($days = 0)
+    protected function doCleanup(int $days = 0)
     {
         if ($days <= 0)
         {
@@ -33,20 +25,18 @@ class PasswordCleanup extends AbstractJob
         \XF::db()->query('DELETE FROM xf_sv_pwned_hash_cache WHERE last_update < ?', $cutoff);
     }
 
-    public function getStatusMessage()
+    public function getStatusMessage(): string
     {
         return '';
     }
 
-    public function canCancel()
+    public function canCancel(): bool
     {
         return false;
     }
 
-    public function canTriggerByChoice()
+    public function canTriggerByChoice(): bool
     {
         return false;
     }
-
-
 }

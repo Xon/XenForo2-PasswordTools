@@ -20,7 +20,7 @@ class Setup extends AbstractSetup
     /**
      * Creates add-on tables.
      */
-    public function installStep1()
+    public function installStep1(): void
     {
         $sm = $this->schemaManager();
 
@@ -31,12 +31,12 @@ class Setup extends AbstractSetup
         }
     }
 
-    public function upgrade2000000Step1()
+    public function upgrade2000000Step1(): void
     {
         $this->installStep1();
     }
 
-    public function upgrade2000000Step2()
+    public function upgrade2000000Step2(): void
     {
         $this->renameOption('enforcePasswordComplexityForAdmins', 'svEnforcePasswordComplexityForAdmins');
         $this->renameOption('passwordToolsCheckTypes', 'svPasswordToolsCheckTypes');
@@ -49,7 +49,7 @@ class Setup extends AbstractSetup
         $this->renameOption('pwnedPasswordCacheTime', 'svPwnedPasswordCacheTime');
     }
 
-    public function upgrade2000000Step3()
+    public function upgrade2000000Step3(): void
     {
         /** @var \XF\Entity\Option $option */
         $option = \XF::finder('XF:Option')->whereId('svPasswordToolsCheckTypes')->fetchOne();
@@ -74,7 +74,7 @@ class Setup extends AbstractSetup
         }
     }
 
-    public function upgrade3020000Step1()
+    public function upgrade3020000Step1(): void
     {
         $this->installStep1();
     }
@@ -82,7 +82,7 @@ class Setup extends AbstractSetup
     /**
      * Drops add-on tables.
      */
-    public function uninstallStep1()
+    public function uninstallStep1(): void
     {
         $sm = $this->schemaManager();
 
@@ -92,10 +92,7 @@ class Setup extends AbstractSetup
         }
     }
 
-    /**
-     * @return array
-     */
-    protected function getTables()
+    protected function getTables(): array
     {
         $tables = [];
 

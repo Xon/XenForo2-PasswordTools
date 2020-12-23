@@ -12,12 +12,7 @@ use XF\Option\AbstractOption;
  */
 class BlacklistPassword extends AbstractOption
 {
-    /**
-     * @param Option $option
-     * @param array  $htmlParams
-     * @return string
-     */
-    public static function renderOption(Option $option, array $htmlParams)
+    public static function renderOption(Option $option, array $htmlParams): string
     {
         $choices = [];
         foreach ($option->option_value AS $word)
@@ -31,11 +26,7 @@ class BlacklistPassword extends AbstractOption
         ]);
     }
 
-    /**
-     * @param array $value
-     * @return bool
-     */
-    public static function verifyOption(array &$value)
+    public static function verifyOption(array &$value): bool
     {
         $output = [];
 

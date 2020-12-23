@@ -9,12 +9,14 @@ namespace SV\PasswordTools\XF\Template;
  */
 class Templater extends XFCP_Templater
 {
+    /** @var bool */
     protected $svPasswordToolsRecursionGuard = false;
 
     /**
      * @param array $controlOptions
      * @param array $rowOptions
      * @return string
+     * @noinspection PhpMissingReturnTypeInspection
      */
     public function formTextBoxRow(array $controlOptions, array $rowOptions)
     {
@@ -40,6 +42,7 @@ class Templater extends XFCP_Templater
     /**
      * @param array $controlOptions
      * @return mixed|string
+     * @noinspection PhpMissingReturnTypeInspection
      */
     public function formTextBox(array $controlOptions)
     {
@@ -72,12 +75,7 @@ class Templater extends XFCP_Templater
         return parent::formTextBox($controlOptions);
     }
 
-    /**
-     * @param array $controlOptions
-     * @param array $rowOptions
-     * @return string
-     */
-    public function svPasswordTextBoxRow(array $controlOptions, array $rowOptions)
+    public function svPasswordTextBoxRow(array $controlOptions, array $rowOptions): string
     {
         $this->addToClassAttribute($rowOptions, 'formRow--input', 'rowclass');
 
@@ -92,12 +90,7 @@ class Templater extends XFCP_Templater
         return $this->formRow($controlHtml, $rowOptions, $controlId);
     }
 
-    /**
-     * @param array $controlOptions
-     * @param bool  $wrap
-     * @return mixed|string
-     */
-    public function svPasswordTextBox(array $controlOptions, $wrap = false)
+    public function svPasswordTextBox(array $controlOptions, bool $wrap = false): string
     {
         $this->processCodeAttribute($controlOptions);
         $class = $this->processAttributeToRaw($controlOptions, 'class', '', true);

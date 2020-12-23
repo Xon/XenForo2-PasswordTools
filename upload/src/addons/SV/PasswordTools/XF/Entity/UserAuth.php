@@ -11,13 +11,7 @@ namespace SV\PasswordTools\XF\Entity;
  */
 class UserAuth extends XFCP_UserAuth
 {
-    /**
-     * @param string   $password
-     * @param int      $updatePasswordDate
-     * @param \Closure $parentCallable
-     * @return bool
-     */
-    public function svCheckPasswordOnSet($password, $updatePasswordDate, \Closure $parentCallable)
+    public function svCheckPasswordOnSet(string $password, int $updatePasswordDate, \Closure $parentCallable): bool
     {
         $options = $this->app()->options();
 
@@ -53,11 +47,7 @@ class UserAuth extends XFCP_UserAuth
         return $parentCallable();
     }
 
-    /**
-     * @param $password
-     * @return bool
-     */
-    protected function checkPasswordWithLength($password)
+    protected function checkPasswordWithLength(string $password): bool
     {
         $options = $this->app()->options();
 
@@ -74,12 +64,7 @@ class UserAuth extends XFCP_UserAuth
         return true;
     }
 
-
-    /**
-     * @param $password
-     * @return bool
-     */
-    protected function checkPasswordWithZxcvbn($password)
+    protected function checkPasswordWithZxcvbn(string $password): bool
     {
         $options = $this->app()->options();
 
@@ -112,12 +97,7 @@ class UserAuth extends XFCP_UserAuth
         return true;
     }
 
-    /**
-     * @param string $password
-     * @return bool
-     * @throws \XF\Db\Exception
-     */
-    protected function checkPasswordWithPwned($password)
+    protected function checkPasswordWithPwned(string $password): bool
     {
         $options = $this->app()->options();
         $minimumUsages = (int)$options->svPwnedPasswordReuseCount;
@@ -130,8 +110,8 @@ class UserAuth extends XFCP_UserAuth
         $hash = utf8_strtoupper(sha1($password));
         $prefix = utf8_substr($hash, 0, 5);
         $suffix = utf8_substr($hash, 5);
-        $suffixSet = $this->getPwnedPrefixMatches($prefix);
-        if ($suffixSet === null || $suffixSet === false)
+        $suffixSet = $this->getPwnedPrefixMatches($prefix, null);
+        if ($suffixSet === null)
         {
             return true;
         }
@@ -151,13 +131,7 @@ class UserAuth extends XFCP_UserAuth
         return true;
     }
 
-    /**
-     * @param string   $prefix
-     * @param null|int $cutoff
-     * @return array|bool
-     * @throws \XF\Db\Exception
-     */
-    protected function getPwnedPrefixMatches($prefix, $cutoff = null)
+    protected function getPwnedPrefixMatches(string $prefix, ?int $cutoff): ?array
     {
         $options = $this->app()->options();
         $db = $this->db();
@@ -205,7 +179,7 @@ class UserAuth extends XFCP_UserAuth
                 \XF::logError($error);
                 $this->error($publicError, 'password');
 
-                return false;
+                return null;
             }
             else if ($response->getStatusCode() === 404)
             {
@@ -221,7 +195,7 @@ class UserAuth extends XFCP_UserAuth
                 \XF::logError("$publicError\n {$error}");
                 $this->error($publicError, 'password');
 
-                return false;
+                return null;
             }
             else
             {
@@ -241,7 +215,7 @@ class UserAuth extends XFCP_UserAuth
 
             $this->error(\XF::phrase('svPasswordTools_API_Failure'), 'password');
 
-            return false;
+            return null;
         }
         $db->query('INSERT INTO xf_sv_pwned_hash_cache (prefix, suffixes, last_update)
           VALUES (?,?,?)
