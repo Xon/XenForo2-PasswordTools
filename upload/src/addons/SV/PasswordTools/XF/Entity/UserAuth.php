@@ -99,26 +99,9 @@ class UserAuth extends XFCP_UserAuth
 
     protected function checkPasswordWithPwned(string $password): bool
     {
-        $options = $this->app()->options();
-        $minimumUsages = (int)$options->svPwnedPasswordReuseCount;
-
-        if ($minimumUsages < 1)
-        {
-            return true;
-        }
-
-        $hash = utf8_strtoupper(sha1($password));
-        $prefix = utf8_substr($hash, 0, 5);
-        $suffix = utf8_substr($hash, 5);
-        $suffixSet = $this->getPwnedPrefixMatches($prefix, null);
-        if ($suffixSet === null)
-        {
-            return true;
-        }
-
-        if (isset($suffixSet[$suffix]) &&
-            ($useCount = $suffixSet[$suffix]) &&
-            $useCount >= $minimumUsages)
+        $useCount = 0;
+        $pwnedPassword = $this->isPwnedPassword($password, $useCount, false);
+        if ($pwnedPassword)
         {
             $this->error(\XF::phrase('svPasswordTools_password_known_to_be_compromised_on_at_least_x_accounts', [
                 'count'          => $useCount,
@@ -131,26 +114,50 @@ class UserAuth extends XFCP_UserAuth
         return true;
     }
 
-    protected function getPwnedPrefixMatches(string $prefix, ?int $cutoff): ?array
+    public function isPwnedPassword(string $password, int &$useCount, bool $cacheOnly): bool
+    {
+        $options = $this->app()->options();
+        $minimumUsages = (int)($options->svPwnedPasswordReuseCount ?? 0);
+
+        if ($minimumUsages < 1)
+        {
+            return true;
+        }
+
+        $hash = utf8_strtoupper(sha1($password));
+        $prefix = utf8_substr($hash, 0, 5);
+        $suffix = utf8_substr($hash, 5);
+        $suffixSet = $this->getPwnedPrefixMatches($prefix, null, $cacheOnly);
+        if ($suffixSet === null)
+        {
+            return false;
+        }
+
+        $useCount = $suffixSet[$suffix] ?? 0;
+
+        return $useCount >= $minimumUsages;
+    }
+
+    protected function getPwnedPrefixMatches(string $prefix, ?int $cacheCutoff, bool $cacheOnly): ?array
     {
         $options = $this->app()->options();
         $db = $this->db();
 
-        if ($cutoff === null)
+        if ($cacheCutoff === null)
         {
             $pwnedPasswordCacheTime = (int)$options->svPwnedPasswordCacheTime;
             if ($pwnedPasswordCacheTime > 0)
             {
-                $cutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;
+                $cacheCutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;
             }
         }
 
-        $cutoff = $cutoff ?: 0;
+        $cacheCutoff = (int)$cacheCutoff;
         $suffixes = $db->fetchOne(
             'SELECT suffixes
                     FROM xf_sv_pwned_hash_cache
                     WHERE prefix = ?
-                      AND last_update > ?', [$prefix, $cutoff]
+                      AND last_update > ?', [$prefix, $cacheCutoff]
         );
 
         if ($suffixes)
@@ -160,6 +167,11 @@ class UserAuth extends XFCP_UserAuth
             {
                 return $suffixSet;
             }
+        }
+
+        if ($cacheOnly)
+        {
+            return [];
         }
 
         $suffixCount = [];
