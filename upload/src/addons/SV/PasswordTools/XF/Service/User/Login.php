@@ -19,13 +19,14 @@ class Login extends XFCP_Login
         {
             /** @var UserAuth $auth */
             $auth = $user->Auth;
-            if (!$auth)
+            $options = \XF::options();
+            $checkPwnedPassword = ($options->svAlertOnCompromisedPasswordOnLogin ?? true);
+            if (!$auth || !$checkPwnedPassword)
             {
-                // wat
                 return $user;
             }
             $lastPwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
-            $recurring = (int)(\XF::options()->svPwnedPasswordAlertRecurring ?? 0);
+            $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 86400);
             if ($lastPwnedPasswordCheck + $recurring < \XF::$time)
             {
                 \XF::runLater(function () use ($auth, $user, $password) {
