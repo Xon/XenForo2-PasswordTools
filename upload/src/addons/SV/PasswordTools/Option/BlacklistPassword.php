@@ -22,7 +22,7 @@ class BlacklistPassword extends AbstractOption
 
         return self::getTemplate('admin:option_template_svPasswordStrengthMeter_blacklist', $option, $htmlParams, [
             'choices'     => $choices,
-            'nextCounter' => count($choices)
+            'nextCounter' => \count($choices)
         ]);
     }
 
@@ -32,8 +32,8 @@ class BlacklistPassword extends AbstractOption
 
         foreach ($value AS $word)
         {
-            $word = utf8_trim($word);
-            if (empty($word))
+            $word = \utf8_trim($word);
+            if (\strlen($word) === 0)
             {
                 continue;
             }

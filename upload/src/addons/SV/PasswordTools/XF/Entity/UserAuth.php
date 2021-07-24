@@ -52,7 +52,7 @@ class UserAuth extends XFCP_UserAuth
         $options = $this->app()->options();
 
         $minLength = $options->svPasswordStrengthMeter_min;
-        if (utf8_strlen($password) < $minLength)
+        if (\utf8_strlen($password) < $minLength)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
                 'length' => $minLength
@@ -70,7 +70,7 @@ class UserAuth extends XFCP_UserAuth
 
         $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
 
-        $blackList = array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
+        $blackList = \array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
         $result = $zxcvbn->passwordStrength($password, $blackList);
 
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
@@ -124,9 +124,9 @@ class UserAuth extends XFCP_UserAuth
             return true;
         }
 
-        $hash = utf8_strtoupper(sha1($password));
-        $prefix = utf8_substr($hash, 0, 5);
-        $suffix = utf8_substr($hash, 5);
+        $hash = \utf8_strtoupper(\sha1($password));
+        $prefix = \utf8_substr($hash, 0, 5);
+        $suffix = \utf8_substr($hash, 5);
         $suffixSet = $this->getPwnedPrefixMatches($prefix, null, $cacheOnly);
         if ($suffixSet === null)
         {
@@ -212,10 +212,10 @@ class UserAuth extends XFCP_UserAuth
             else
             {
                 $text = $response->getBody();
-                $suffixSet = array_filter(array_map('trim', explode("\n", $text)));
+                $suffixSet = \array_filter(\array_map('\trim', \explode("\n", $text)));
                 foreach ($suffixSet as $suffix)
                 {
-                    $suffixInfo = explode(':', utf8_trim($suffix));
+                    $suffixInfo = \explode(':', \trim($suffix));
                     $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
                 }
             }
