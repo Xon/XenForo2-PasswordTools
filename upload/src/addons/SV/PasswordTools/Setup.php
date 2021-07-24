@@ -31,6 +31,19 @@ class Setup extends AbstractSetup
         }
     }
 
+    public function installStep2()
+    {
+        $sm = $this->schemaManager();
+
+        foreach ($this->getAlterTables() as $tableName => $callback)
+        {
+            if ($sm->tableExists($tableName))
+            {
+                $sm->alterTable($tableName, $callback);
+            }
+        }
+    }
+
     public function upgrade2000000Step1(): void
     {
         $this->installStep1();
@@ -74,15 +87,31 @@ class Setup extends AbstractSetup
         }
     }
 
-    public function upgrade3020000Step1(): void
+    public function upgrade3050000Step1(): void
     {
         $this->installStep1();
+    }
+
+    public function upgrade3050000Step2(): void
+    {
+        $this->installStep2();
     }
 
     /**
      * Drops add-on tables.
      */
     public function uninstallStep1(): void
+    {
+        $sm = $this->schemaManager();
+
+        foreach ($this->getTables() as $tableName => $callback)
+        {
+            $sm->dropTable($tableName);
+        }
+    }
+
+
+    public function uninstallStep2()
     {
         $sm = $this->schemaManager();
 
@@ -104,6 +133,28 @@ class Setup extends AbstractSetup
 
             $table->addPrimaryKey('prefix');
             $table->addKey(['last_update'], 'last_update');
+        };
+
+        return $tables;
+    }
+
+    protected function getAlterTables(): array
+    {
+        $tables = [];
+
+        $tables['xf_user_authenticate'] = function (Alter $table) {
+            $this->addOrChangeColumn($table, 'sv_pwned_password_check', 'int')->nullable()->setDefault(null);
+        };
+
+        return $tables;
+    }
+
+    protected function getRemoveAlterTables(): array
+    {
+        $tables = [];
+
+        $tables['xf_user_authenticate'] = function (Alter $table) {
+            $table->dropColumns('sv_pwned_password_check');
         };
 
         return $tables;

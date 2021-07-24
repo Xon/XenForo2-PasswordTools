@@ -2,12 +2,12 @@
 
 namespace SV\PasswordTools\XF\Entity;
 
-/**
+use XF\Mvc\Entity\Structure;/**
  * Class UserAuth
- *
  * Extends \XF\Entity\UserAuth
  *
  * @package SV\PasswordTools\XF\Entity
+ * @property int|null sv_pwned_password_check
  */
 class UserAuth extends XFCP_UserAuth
 {
@@ -237,5 +237,25 @@ class UserAuth extends XFCP_UserAuth
          ', [$prefix, json_encode($suffixCount), \XF::$time]);
 
         return $suffixCount;
+    }
+
+    protected function _postSave()
+    {
+        parent::_postSave();
+
+        if ($this->isChanged('data'))
+        {
+            $this->fastUpdate('sv_pwned_password_check', 0);
+        }
+    }
+
+    /** @noinspection PhpMissingReturnTypeInspection */
+    public static function getStructure(Structure $structure)
+    {
+        $structure = parent::getStructure($structure);
+
+        $structure->columns['sv_pwned_password_check'] = ['type' => self::UINT, 'default' => null, 'nullable' => true, 'changeLog' => false];
+
+        return $structure;
     }
 }

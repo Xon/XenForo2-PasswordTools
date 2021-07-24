@@ -12,36 +12,46 @@ class Login extends XFCP_Login
     public function validate($password, &$error = null)
     {
         $user = parent::validate($password, $error);
-        if (\strlen($password) !== 0 && $user && $user->Auth)
+        if (\strlen($password) !== 0 && $user)
         {
-            \XF::runLater(function () use ($user, $password) {
-                try
-                {
-                    $useCount = 0;
-                    /** @var UserAuth $auth */
-                    $auth = $user->Auth;
-                    if ($auth->isPwnedPassword($password, $useCount, false))
+            /** @var UserAuth $auth */
+            $auth = $user->Auth;
+            if (!$auth)
+            {
+                // wat
+                return $user;
+            }
+            $lastPwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
+            $recurring = (int)(\XF::options()->svPwnedPasswordAlertRecurring ?? 0);
+            if ($lastPwnedPasswordCheck + $recurring < \XF::$time)
+            {
+                \XF::runLater(function () use ($auth, $user, $password) {
+                    try
                     {
-
-                        /** @var \XF\Repository\UserAlert $alertRepo */
-                        $alertRepo = $this->repository('XF:UserAlert');
-                        $alertRepo->alert(
-                            $user,
-                            0, '',
-                            'user', $user->user_id,
-                            "pwned_password", [
-                                'depends_on_addon_id' => 'SV/PasswordTools', // XF2.1 compatible
-                                'count'          => $useCount,
-                                'countFormatted' => \XF::language()->numberFormat($useCount),
-                            ]
-                        );
+                        $useCount = 0;
+                        if ($auth->isPwnedPassword($password, $useCount, false))
+                        {
+                            $auth->fastUpdate('sv_pwned_password_check', \XF::$time);
+                            /** @var \XF\Repository\UserAlert $alertRepo */
+                            $alertRepo = $this->repository('XF:UserAlert');
+                            $alertRepo->alert(
+                                $user,
+                                0, '',
+                                'user', $user->user_id,
+                                "pwned_password", [
+                                    'depends_on_addon_id' => 'SV/PasswordTools', // XF2.1 compatible
+                                    'count'               => $useCount,
+                                    'countFormatted'      => \XF::language()->numberFormat($useCount),
+                                ]
+                            );
+                        }
                     }
-                }
-                catch(\Throwable $e)
-                {
-                    \XF::logException($e);
-                }
-            });
+                    catch (\Throwable $e)
+                    {
+                        \XF::logException($e);
+                    }
+                });
+            }
         }
 
         return $user;
