@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\PasswordTools\XF\Template;
 
@@ -41,8 +44,7 @@ class Templater extends XFCP_Templater
 
     /**
      * @param array $controlOptions
-     * @return mixed|string
-     * @noinspection PhpMissingReturnTypeInspection
+     * @return string
      */
     public function formTextBox(array $controlOptions)
     {

@@ -204,7 +204,7 @@ class UserAuth extends XFCP_UserAuth
             {
                 $publicError = \XF::phrase('svPasswordTools_API_Failure_code', ['code' => $response->getStatusCode()]);
                 $error = $error ?: '';
-                \XF::logError("$publicError\n {$error}");
+                \XF::logError("$publicError\n $error");
                 $this->error($publicError, 'password');
 
                 return null;
