@@ -26,11 +26,6 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        if ($user->Option->use_tfa)
-        {
-            return false;
-        }
-
         $pwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
         if ($pwnedPasswordCheck === 0)
         {
@@ -53,6 +48,22 @@ class Tfa extends XFCP_Tfa
         if (!$handler->meetsRequirements($user, $error))
         {
             // user doesn't have email or the email is broken
+            return false;
+        }
+
+        if ($user->Option->use_tfa)
+        {
+            $providers = \array_keys(parent::getAvailableProvidersForUser($user->user_id));
+            $providers = \array_diff_key($providers, ['backup' => true]);
+            if (\count($providers) === 0)
+            {
+                // If a user has use_tfa = true and providers = ['backup'], a state that XF considers to be valid but treats the same as use_tfa = false
+                // Force an entry into xf_user_tfa, so the email 2fa is enabled and can store its code
+                $this->addEmail2faRecord($user, []);
+
+                return true;
+            }
+
             return false;
         }
 
@@ -110,14 +121,20 @@ class Tfa extends XFCP_Tfa
         {
             return true;
         }
-
         // ensure the email 2fa code is written to the database
 
+        $this->addEmail2faRecord($user, $config);
+
+        return true;
+    }
+
+    protected function addEmail2faRecord(\XF\Entity\User $user, array $config): \XF\Entity\UserTfa
+    {
         /** @var \XF\Entity\UserTfa $userTfa */
         $userTfa = $this->em->create('XF:UserTfa');
 
         $userTfa->user_id = $user->user_id;
-        $userTfa->provider_id = $provider->provider_id;
+        $userTfa->provider_id = 'email';
         $userTfa->provider_data = $config;
         $userTfa->last_used_date = \XF::$time;
         // prevent the use_tfa flag being set
@@ -127,6 +144,6 @@ class Tfa extends XFCP_Tfa
         // probably not needed
         $userTfa->hydrateRelation('User', $user);
 
-        return true;
+        return $userTfa;
     }
 }
