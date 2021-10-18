@@ -118,8 +118,9 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = $this->app()->options();
         $minimumUsages = (int)($options->svPwnedPasswordReuseCount ?? 0);
+        $minimumUsagesSoft = (int)($options->svPwnedPasswordReuseCountSoft ?? 0);
 
-        if ($minimumUsages < 1)
+        if ($minimumUsages < 1 && $minimumUsagesSoft < 1)
         {
             return true;
         }
@@ -133,9 +134,25 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        $useCount = $suffixSet[$suffix] ?? 0;
+        $useCount = (int)($suffixSet[$suffix] ?? 0);
 
-        return $useCount >= $minimumUsages;
+        if ($useCount === 0)
+        {
+            return false;
+        }
+
+        if ($minimumUsages !== 0 && $useCount >= $minimumUsages)
+        {
+            return true;
+        }
+
+        if ($minimumUsagesSoft !== 0 && $useCount >= $minimumUsagesSoft)
+        {
+            $this->setOption('svResetPwnedPasswordCheck', false);
+            $this->setOption('svNagOnWeakPassword', $useCount);
+        }
+
+        return false;
     }
 
     protected function getPwnedPrefixMatches(string $prefix, ?int $cacheCutoff, bool $cacheOnly): ?array
@@ -245,11 +262,51 @@ class UserAuth extends XFCP_UserAuth
 
         if ($this->isChanged('data'))
         {
-            $this->fastUpdate('sv_pwned_password_check', 0);
-            /** @var \XF\Repository\UserAlert $alertRepo */
-            $alertRepo = $this->repository('XF:UserAlert');
-            $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
+            if ($this->getOption('svResetPwnedPasswordCheck'))
+            {
+                $this->fastUpdate('sv_pwned_password_check', 0);
+                /** @var \XF\Repository\UserAlert $alertRepo */
+                $alertRepo = $this->repository('XF:UserAlert');
+                $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
+            }
+
+            $useCount = $this->getOption('svNagOnWeakPassword');
+            if ($useCount)
+            {
+                $this->svNagOnWeakPasswordDefer($useCount);
+            }
         }
+    }
+
+    public function svNagOnWeakPasswordDefer(int $useCount): void
+    {
+        \XF::runLater(function () use ($useCount) {
+            try
+            {
+                $this->svNagOnWeakPassword($useCount);
+            }
+            catch (\Throwable $e)
+            {
+                \XF::logException($e);
+            }
+        });
+    }
+
+    public function svNagOnWeakPassword(int $useCount): void
+    {
+        $this->fastUpdate('sv_pwned_password_check', \XF::$time);
+        /** @var \XF\Repository\UserAlert $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo->alert(
+            $this->User,
+            0, '',
+            'user', $this->User->user_id,
+            "pwned_password", [
+                'depends_on_addon_id' => 'SV/PasswordTools', // XF2.1 compatible
+                'count'               => $useCount,
+                'countFormatted'      => \XF::language()->numberFormat($useCount),
+            ]
+        );
     }
 
     /** @noinspection PhpMissingReturnTypeInspection */
@@ -258,6 +315,8 @@ class UserAuth extends XFCP_UserAuth
         $structure = parent::getStructure($structure);
 
         $structure->columns['sv_pwned_password_check'] = ['type' => self::UINT, 'default' => null, 'nullable' => true, 'changeLog' => false];
+        $structure->options['svResetPwnedPasswordCheck'] = true;
+        $structure->options['svNagOnWeakPassword'] = 0;
 
         return $structure;
     }

@@ -111,7 +111,6 @@ class Tfa extends XFCP_Tfa
      * @param array                  $config
      * @param bool                   $updateLastUsed
      * @return bool
-     * @throws \XF\PrintableException
      * @noinspection PhpMissingReturnTypeInspection
      */
     public function updateUserTfaData(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, $updateLastUsed = true)

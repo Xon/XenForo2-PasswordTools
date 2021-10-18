@@ -35,19 +35,7 @@ class Login extends XFCP_Login
                         $useCount = 0;
                         if ($auth->isPwnedPassword($password, $useCount, false))
                         {
-                            $auth->fastUpdate('sv_pwned_password_check', \XF::$time);
-                            /** @var \XF\Repository\UserAlert $alertRepo */
-                            $alertRepo = $this->repository('XF:UserAlert');
-                            $alertRepo->alert(
-                                $user,
-                                0, '',
-                                'user', $user->user_id,
-                                "pwned_password", [
-                                    'depends_on_addon_id' => 'SV/PasswordTools', // XF2.1 compatible
-                                    'count'               => $useCount,
-                                    'countFormatted'      => \XF::language()->numberFormat($useCount),
-                                ]
-                            );
+                            $auth->svNagOnWeakPassword($useCount);
                         }
                     }
                     catch (\Throwable $e)
