@@ -26,6 +26,11 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
+        if ($user->Option->use_tfa)
+        {
+            return false;
+        }
+
         $pwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
         if ($pwnedPasswordCheck === 0)
         {
@@ -48,33 +53,6 @@ class Tfa extends XFCP_Tfa
         if (!$handler->meetsRequirements($user, $error))
         {
             // user doesn't have email or the email is broken
-            return false;
-        }
-
-        /** @var \XF\Entity\UserTfa $userTfa */
-        $userTfa = $email2FaProvider->UserEntries[$user->user_id] ?? null;
-        if ($userTfa === null)
-        {
-            // If a user has use_tfa = true and providers = ['backup'], a state that XF considers to be valid but treats the same as use_tfa = false
-            // Force an entry into xf_user_tfa, so the email 2fa is enabled and can store its code
-
-            /** @var \XF\Entity\UserTfa $userTfa */
-            $userTfa = $this->em->create('XF:UserTfa');
-
-            $userTfa->user_id = $user->user_id;
-            $userTfa->provider_id = $email2FaProvider->provider_id;
-            $userTfa->provider_data = [];
-            $userTfa->last_used_date = \XF::$time;
-            // prevent the use_tfa flag being set
-            $userTfa->hydrateRelation('User', null);
-
-            $userTfa->save();
-            // probably not needed
-            $userTfa->hydrateRelation('User', $user);
-        }
-
-        if ($user->Option->use_tfa)
-        {
             return false;
         }
 
@@ -114,5 +92,41 @@ class Tfa extends XFCP_Tfa
         {
             Globals::$forceEmail2FA = false;
         }
+    }
+
+    /**
+     * @param User                   $user
+     * @param \XF\Entity\TfaProvider $provider
+     * @param array                  $config
+     * @param bool                   $updateLastUsed
+     * @return bool
+     * @throws \XF\PrintableException
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    public function updateUserTfaData(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, $updateLastUsed = true)
+    {
+        $result = parent::updateUserTfaData($user, $provider, $config, $updateLastUsed);
+        if ($result || $provider->provider_id !== 'email' || !$this->isSvForcedEmail2fa($user))
+        {
+            return true;
+        }
+
+        // ensure the email 2fa code is written to the database
+
+        /** @var \XF\Entity\UserTfa $userTfa */
+        $userTfa = $this->em->create('XF:UserTfa');
+
+        $userTfa->user_id = $user->user_id;
+        $userTfa->provider_id = $provider->provider_id;
+        $userTfa->provider_data = $config;
+        $userTfa->last_used_date = \XF::$time;
+        // prevent the use_tfa flag being set
+        $userTfa->hydrateRelation('User', null);
+
+        $userTfa->save();
+        // probably not needed
+        $userTfa->hydrateRelation('User', $user);
+
+        return true;
     }
 }
