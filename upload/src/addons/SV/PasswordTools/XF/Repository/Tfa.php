@@ -53,8 +53,8 @@ class Tfa extends XFCP_Tfa
 
         if ($user->Option->use_tfa)
         {
-            $providers = \array_keys(parent::getAvailableProvidersForUser($user->user_id));
-            $providers = \array_diff_key($providers, ['backup' => true]);
+            $providers = parent::getAvailableProvidersForUser($user->user_id);
+            unset($providers['backup']);
             if (\count($providers) === 0)
             {
                 // If a user has use_tfa = true and providers = ['backup'], a state that XF considers to be valid but treats the same as use_tfa = false
