@@ -111,25 +111,21 @@ class Tfa extends XFCP_Tfa
             return true;
         }
 
-        // prevent the use_tfa flag being set
-        $option = $user->Option;
-        $user->hydrateRelation('Option', null);
-        try
-        {
-            // ensure the email 2fa code is written to the database
+        // ensure the email 2fa code is written to the database
 
-            /** @var \XF\Entity\UserTfa $userTfa */
-            $userTfa = $this->em->create('XF:UserTfa');
-            $userTfa->user_id = $user->user_id;
-            $userTfa->provider_id = $provider->provider_id;
-            $userTfa->provider_data = $config;
-            $userTfa->last_used_date = \XF::$time;
-            $userTfa->save();
-        }
-        finally
-        {
-            $user->hydrateRelation('Option', $option);
-        }
+        /** @var \XF\Entity\UserTfa $userTfa */
+        $userTfa = $this->em->create('XF:UserTfa');
+
+        $userTfa->user_id = $user->user_id;
+        $userTfa->provider_id = $provider->provider_id;
+        $userTfa->provider_data = $config;
+        $userTfa->last_used_date = \XF::$time;
+        // prevent the use_tfa flag being set
+        $userTfa->hydrateRelation('User', null);
+
+        $userTfa->save();
+        // probably not needed
+        $userTfa->hydrateRelation('User', $user);
 
         return true;
     }
