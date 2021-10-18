@@ -2,7 +2,9 @@
 
 namespace SV\PasswordTools\XF\Entity;
 
-use XF\Mvc\Entity\Structure;/**
+use XF\Mvc\Entity\Structure;
+
+/**
  * Class UserAuth
  * Extends \XF\Entity\UserAuth
  *

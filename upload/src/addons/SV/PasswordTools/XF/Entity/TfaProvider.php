@@ -1,10 +1,11 @@
 <?php
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\PasswordTools\XF\Entity;
 
 use SV\PasswordTools\Globals;
-use XF\Mvc\Entity\Entity;
-use XF\Mvc\Entity\Structure;
 
 /**
  * Extends \XF\Entity\TfaProvider
@@ -14,8 +15,6 @@ class TfaProvider extends XFCP_TfaProvider
     /**
      * @param int|null $userId
      * @return bool
-     *
-     * @noinspection PhpMissingReturnTypeInspection
      */
     public function isEnabled($userId = null)
     {
@@ -33,11 +32,39 @@ class TfaProvider extends XFCP_TfaProvider
         return false;
     }
 
+    public function canEnable($userId = null)
+    {
+        $canEnable = parent::canEnable($userId);
+        if (!$canEnable && $this->provider_id === 'email')
+        {
+            $config = $this->getUserProviderConfig($userId);
+            if ($config['np_enabled_as_fallback'] ?? false)
+            {
+                $canEnable = true;
+            }
+        }
+
+        return $canEnable;
+    }
+
+    public function canDisable($userId = null)
+    {
+        $canDisable = parent::canDisable($userId);
+        if ($canDisable && $this->provider_id === 'email')
+        {
+            $config = $this->getUserProviderConfig($userId);
+            if ($config['np_enabled_as_fallback'] ?? false)
+            {
+                $canDisable = false;
+            }
+        }
+
+        return $canDisable;
+    }
+
     /**
      * @param int|null $userId
      * @return array|null
-     *
-     * @noinspection PhpMissingReturnTypeInspection
      */
     public function getUserProviderConfig($userId = null)
     {

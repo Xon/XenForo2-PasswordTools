@@ -132,6 +132,9 @@ class Tfa extends XFCP_Tfa
         /** @var \XF\Entity\UserTfa $userTfa */
         $userTfa = $this->em->create('XF:UserTfa');
 
+        // signal this is a tainted email provider until it gets enabled explicitly
+        $config['np_enabled_as_fallback'] = true;
+
         $userTfa->user_id = $user->user_id;
         $userTfa->provider_id = 'email';
         $userTfa->provider_data = $config;
@@ -144,5 +147,35 @@ class Tfa extends XFCP_Tfa
         $userTfa->hydrateRelation('User', $user);
 
         return $userTfa;
+    }
+
+    /**
+     * @param User                   $user
+     * @param \XF\Entity\TfaProvider $provider
+     * @param array                  $config
+     * @param false                  $backupAdded
+     * @return \XF\Mvc\Entity\Entity|null
+     * @noinspection PhpMissingReturnTypeInspection
+     */
+    public function enableUserTfaProvider(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, &$backupAdded = false)
+    {
+        $db = $this->db();
+        $db->beginTransaction();
+
+        if ($config['np_enabled_as_fallback'] ?? true)
+        {
+            unset($config['np_enabled_as_fallback']);
+            // delete via raw query to avoid tfa cleanup
+            $db->query('delete from xf_user_tfa where user_id = ? and provider_id = ?', [$user->user_id, $provider->provider_id]);
+        }
+
+        try
+        {
+            return parent::enableUserTfaProvider($user, $provider, $config,$backupAdded);
+        }
+        finally
+        {
+            $db->commit();
+        }
     }
 }
