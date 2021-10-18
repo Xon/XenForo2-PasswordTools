@@ -53,8 +53,28 @@ class Tfa extends XFCP_Tfa
 
         if ($user->Option->use_tfa)
         {
-            $providers = parent::getAvailableProvidersForUser($user->user_id);
-            unset($providers['backup']);
+            Globals::$forceEmail2FA = true;
+            try
+            {
+                $providers = parent::getAvailableProvidersForUser($user->user_id);
+                unset($providers['backup']);
+            }
+            finally
+            {
+                Globals::$forceEmail2FA = false;
+            }
+
+            /** @var \XF\Entity\TfaProvider $email */
+            $email = $providers['email'] ?? null;
+            if ($email !== null)
+            {
+                $config = $email->getUserProviderConfig($user->user_id);
+                if ($config['np_enabled_as_fallback'] ?? false)
+                {
+                    return true;
+                }
+            }
+
             if (\count($providers) === 0)
             {
                 // If a user has use_tfa = true and providers = ['backup'], a state that XF considers to be valid but treats the same as use_tfa = false
