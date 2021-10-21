@@ -99,6 +99,13 @@ class Tfa extends XFCP_Tfa
             return true;
         }
 
+        /** @var \XF\Repository\UserTfaTrusted $tfaTrustRepo */
+        $tfaTrustRepo = $this->repository('XF:UserTfaTrusted');
+        if ($trustKey && $tfaTrustRepo->getTfaTrustRecord($user->user_id, $trustKey))
+        {
+            return false;
+        }
+
         if ($this->isSvForcedEmail2fa($user))
         {
             // user has a compromised password, force 2fa. login/two-step forces email 2fa enabled
