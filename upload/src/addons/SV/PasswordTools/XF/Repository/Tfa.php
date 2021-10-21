@@ -13,7 +13,7 @@ class Tfa extends XFCP_Tfa
 {
     public function isSvForcedEmail2fa(\XF\Entity\User $user) : bool
     {
-        if (!\XF::config('enableTfa'))
+        if (!\XF::config('enableTfa') || !(\XF::options()->svPwnedPasswordForceEmail2FA ?? false))
         {
             return false;
         }
