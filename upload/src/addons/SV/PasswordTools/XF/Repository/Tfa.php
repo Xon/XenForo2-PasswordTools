@@ -11,7 +11,7 @@ use XF\Entity\User;
  */
 class Tfa extends XFCP_Tfa
 {
-    public function isSvForcedEmail2fa(\XF\Entity\User $user) : bool
+    public function isSvForcedEmail2fa(\XF\Entity\User $user, ?string $trustKey = null) : bool
     {
         if (!\XF::config('enableTfa') || !(\XF::options()->svPwnedPasswordForceEmail2FA ?? false))
         {
@@ -28,6 +28,13 @@ class Tfa extends XFCP_Tfa
 
         $pwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
         if ($pwnedPasswordCheck === 0)
+        {
+            return false;
+        }
+
+        /** @var \XF\Repository\UserTfaTrusted $tfaTrustRepo */
+        $tfaTrustRepo = $this->repository('XF:UserTfaTrusted');
+        if ($trustKey && $tfaTrustRepo->getTfaTrustRecord($user->user_id, $trustKey))
         {
             return false;
         }
@@ -99,15 +106,8 @@ class Tfa extends XFCP_Tfa
             return true;
         }
 
-        if ($this->isSvForcedEmail2fa($user))
+        if ($this->isSvForcedEmail2fa($user, $trustKey))
         {
-            /** @var \XF\Repository\UserTfaTrusted $tfaTrustRepo */
-            $tfaTrustRepo = $this->repository('XF:UserTfaTrusted');
-            if ($trustKey && $tfaTrustRepo->getTfaTrustRecord($user->user_id, $trustKey))
-            {
-                return false;
-            }
-
             // user has a compromised password, force 2fa. login/two-step forces email 2fa enabled
             return true;
         }
