@@ -169,7 +169,24 @@ class Tfa extends XFCP_Tfa
         // prevent the use_tfa flag being set
         $userTfa->hydrateRelation('User', null);
 
-        $userTfa->save();
+        try
+        {
+            $userTfa->save();
+        }
+        /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (\XF\Db\DuplicateKeyException $e)
+        {
+            if ($this->db()->inTransaction())
+            {
+                throw $e;
+            }
+            $userTfa = $this->app()
+                            ->finder('XF:UserTfa')
+                            ->where('user_id', $user->user_id)
+                            ->where('provider_id', 'email')
+                            ->fetchOne();
+        }
+
         // probably not needed
         $userTfa->hydrateRelation('User', $user);
 
