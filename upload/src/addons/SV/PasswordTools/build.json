@@ -9,8 +9,10 @@
     "composer install --working-dir=_build/upload/src/addons/{addon_id}/ --no-dev --optimize-autoloader",
     "rm -v -r _build/upload/src/addons/{addon_id}/composer.json",
     "rm -v -r _build/upload/src/addons/{addon_id}/composer.lock",
-    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/*/*/data",
-    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/*/*/data-scripts",
+    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/bjeavons/zxcvbn-php/.git*",
+    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/bjeavons/zxcvbn-php/php*.xml*",
+    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/bjeavons/zxcvbn-php/data",
+    "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/bjeavons/zxcvbn-php/data-scripts",
     "rm -v -r _build/upload/src/addons/{addon_id}/_vendor/*/*/test"
   ]
 }
