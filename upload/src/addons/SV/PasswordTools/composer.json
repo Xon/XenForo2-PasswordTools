@@ -2,8 +2,14 @@
     "config": {
         "vendor-dir": "_vendor"
     },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/xon/zxcvbn-php.git"
+        }
+    ],
     "require": {
-        "bjeavons/zxcvbn-php": "^1.2.0",
+        "bjeavons/zxcvbn-php": "dev-php8.1",
         "ext-json": "*"
     }
 }
