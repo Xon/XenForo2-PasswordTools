@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/xon/zxcvbn-php.git",
-                "reference": "9d74ee2ddd68f1f6f50116f2d8aae3747341f834"
+                "reference": "db3256feefaa158a6a971071ef67e386ba42ea0e"
             },
             "require": {
                 "ext-json": "*",
@@ -23,6 +23,9 @@
                 "php-coveralls/php-coveralls": "*",
                 "phpunit/phpunit": "^8.5",
                 "squizlabs/php_codesniffer": "3.*"
+            },
+            "suggest": {
+                "ext-gmp": "Required for optimized binomial calculations (also requires PHP >= 7.3)"
             },
             "type": "library",
             "autoload": {
@@ -50,7 +53,7 @@
                 "password",
                 "zxcvbn"
             ],
-            "time": "2021-12-04T06:08:47+00:00"
+            "time": "2021-12-06T21:41:13+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
