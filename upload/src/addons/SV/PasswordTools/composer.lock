@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b3ef5e87b2973c802df2cfd67a9b858",
+    "content-hash": "5d1502a8378363aa27cf95b023655d00",
     "packages": [
         {
             "name": "bjeavons/zxcvbn-php",
-            "version": "dev-php8.1",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/xon/zxcvbn-php.git",
-                "reference": "db3256feefaa158a6a971071ef67e386ba42ea0e"
+                "url": "https://github.com/bjeavons/zxcvbn-php.git",
+                "reference": "994928ae5b17ecff8baa2406832d37bdf01116c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bjeavons/zxcvbn-php/zipball/994928ae5b17ecff8baa2406832d37bdf01116c0",
+                "reference": "994928ae5b17ecff8baa2406832d37bdf01116c0",
+                "shasum": ""
             },
             "require": {
                 "ext-json": "*",
@@ -33,11 +39,7 @@
                     "ZxcvbnPhp\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "ZxcvbnPhp\\Test\\": "test/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -53,7 +55,11 @@
                 "password",
                 "zxcvbn"
             ],
-            "time": "2021-12-06T21:41:13+00:00"
+            "support": {
+                "issues": "https://github.com/bjeavons/zxcvbn-php/issues",
+                "source": "https://github.com/bjeavons/zxcvbn-php/tree/1.3.1"
+            },
+            "time": "2021-12-21T18:37:02+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -139,9 +145,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "bjeavons/zxcvbn-php": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
