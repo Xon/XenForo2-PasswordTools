@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpMissingReturnTypeInspection
+ */
 
 namespace SV\PasswordTools\XF\Entity;
 
@@ -13,7 +16,7 @@ use XF\Mvc\Entity\Structure;
  */
 class UserAuth extends XFCP_UserAuth
 {
-    public function svCheckPasswordOnSet(string $password, int $updatePasswordDate, \Closure $parentCallable): bool
+    public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
         $options = $this->app()->options();
 
@@ -22,7 +25,7 @@ class UserAuth extends XFCP_UserAuth
             $profile = $this->User->getRelation('Profile');
             if (!$updatePasswordDate || $profile && $profile->getOption('admin_edit') && !$options->svEnforcePasswordComplexityForAdmins)
             {
-                return $parentCallable();
+                return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
             }
         }
 
@@ -46,7 +49,7 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        return $parentCallable();
+        return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
     }
 
     protected function checkPasswordWithLength(string $password): bool
@@ -304,7 +307,7 @@ class UserAuth extends XFCP_UserAuth
             0, '',
             'user', $this->User->user_id,
             "pwned_password", [
-                'depends_on_addon_id' => 'SV/PasswordTools', // XF2.1 compatible
+                'depends_on_addon_id' => 'SV/PasswordTools',
                 'count'               => $useCount,
                 'countFormatted'      => \XF::language()->numberFormat($useCount),
             ]
