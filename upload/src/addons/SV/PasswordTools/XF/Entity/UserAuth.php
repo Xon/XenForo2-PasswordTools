@@ -28,7 +28,7 @@ class UserAuth extends XFCP_UserAuth
             }
         }
 
-        foreach ($options->svPasswordToolsCheckTypes as $checkType => $check)
+        foreach (($options->svPasswordToolsCheckTypes ?? []) as $checkType => $check)
         {
             if ($check)
             {
@@ -55,7 +55,7 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = $this->app()->options();
 
-        $minLength = $options->svPasswordStrengthMeter_min;
+        $minLength = (int)($options->svPasswordStrengthMeter_min ?? 8);
         if (utf8_strlen($password) < $minLength)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
@@ -74,17 +74,17 @@ class UserAuth extends XFCP_UserAuth
 
         $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
 
-        $blackList = array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
+        $blackList = array_merge(($options->svPasswordStrengthMeter_blacklist ?? []), [$options->boardTitle]);
         $result = $zxcvbn->passwordStrength($password, $blackList);
 
-        if ($result['score'] < $options->svPasswordStrengthMeter_str)
+        if ($result['score'] < (int)($options->svPasswordStrengthMeter_str ?? 0))
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooWeak'), 'password');
 
             return false;
         }
 
-        if ($options->svPasswordStrengthMeter_force && !empty($result['sequence']))
+        if (($options->svPasswordStrengthMeter_force ?? false) && !empty($result['sequence']))
         {
             /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
             foreach ($result['sequence'] as $matchSequence)
@@ -166,7 +166,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($cacheCutoff === null)
         {
-            $pwnedPasswordCacheTime = (int)$options->svPwnedPasswordCacheTime;
+            $pwnedPasswordCacheTime = (int)($options->svPwnedPasswordCacheTime ?? 7);
             if ($pwnedPasswordCacheTime > 0)
             {
                 $cacheCutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;

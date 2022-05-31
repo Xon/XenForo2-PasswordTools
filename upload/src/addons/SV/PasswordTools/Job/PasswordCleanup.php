@@ -8,7 +8,7 @@ class PasswordCleanup extends AbstractJob
 {
     public function run($maxRunTime): \XF\Job\JobResult
     {
-        $pwnedPasswordCacheTime = (int)\XF::options()->svPwnedPasswordCacheTime;
+        $pwnedPasswordCacheTime = (int)(\XF::options()->svPwnedPasswordCacheTime ?? 7);
         $this->doCleanup($pwnedPasswordCacheTime);
 
         return $this->complete();
