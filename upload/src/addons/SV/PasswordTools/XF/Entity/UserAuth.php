@@ -1,11 +1,9 @@
 <?php
-/**
- * @noinspection PhpMissingReturnTypeInspection
- */
 
 namespace SV\PasswordTools\XF\Entity;
 
 use XF\Mvc\Entity\Structure;
+use function is_callable, utf8_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 
 /**
  * Class UserAuth
@@ -16,6 +14,7 @@ use XF\Mvc\Entity\Structure;
  */
 class UserAuth extends XFCP_UserAuth
 {
+    /** @noinspection PhpMissingReturnTypeInspection */
     public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
         $options = $this->app()->options();
@@ -29,12 +28,12 @@ class UserAuth extends XFCP_UserAuth
             }
         }
 
-        foreach ($options->svPasswordToolsCheckTypes AS $checkType => $check)
+        foreach ($options->svPasswordToolsCheckTypes as $checkType => $check)
         {
             if ($check)
             {
                 $checkMethodFunc = [$this, 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType)];
-                if (\is_callable($checkMethodFunc))
+                if (is_callable($checkMethodFunc))
                 {
                     if (!$checkMethodFunc($password))
                     {
@@ -57,7 +56,7 @@ class UserAuth extends XFCP_UserAuth
         $options = $this->app()->options();
 
         $minLength = $options->svPasswordStrengthMeter_min;
-        if (\utf8_strlen($password) < $minLength)
+        if (utf8_strlen($password) < $minLength)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
                 'length' => $minLength
@@ -75,7 +74,7 @@ class UserAuth extends XFCP_UserAuth
 
         $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
 
-        $blackList = \array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
+        $blackList = array_merge($options->svPasswordStrengthMeter_blacklist, [$options->boardTitle]);
         $result = $zxcvbn->passwordStrength($password, $blackList);
 
         if ($result['score'] < $options->svPasswordStrengthMeter_str)
@@ -88,7 +87,7 @@ class UserAuth extends XFCP_UserAuth
         if ($options->svPasswordStrengthMeter_force && !empty($result['sequence']))
         {
             /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
-            foreach ($result['sequence'] AS $matchSequence)
+            foreach ($result['sequence'] as $matchSequence)
             {
                 if (isset($matchSequence->dictionaryName) && $matchSequence->dictionaryName === 'user_inputs')
                 {
@@ -130,9 +129,9 @@ class UserAuth extends XFCP_UserAuth
             return true;
         }
 
-        $hash = \utf8_strtoupper(\sha1($password));
-        $prefix = \utf8_substr($hash, 0, 5);
-        $suffix = \utf8_substr($hash, 5);
+        $hash = strtoupper(sha1($password));
+        $prefix = substr($hash, 0, 5);
+        $suffix = substr($hash, 5);
         $suffixSet = $this->getPwnedPrefixMatches($prefix, null, $cacheOnly);
         if ($suffixSet === null)
         {
@@ -185,7 +184,7 @@ class UserAuth extends XFCP_UserAuth
         if ($suffixes)
         {
             $suffixSet = @json_decode($suffixes, true);
-            if (\is_array($suffixSet))
+            if (is_array($suffixSet))
             {
                 return $suffixSet;
             }
@@ -218,7 +217,6 @@ class UserAuth extends XFCP_UserAuth
             else if ($response->getStatusCode() === 404)
             {
                 // the API shouldn't return 404, but handle it anyway
-                $suffixCount = [];
                 $error = $error ?: \XF::phrase('svPasswordTools_API_Failure')->render();
                 \XF::logError($error);
             }
@@ -234,10 +232,10 @@ class UserAuth extends XFCP_UserAuth
             else
             {
                 $text = $response->getBody();
-                $suffixSet = \array_filter(\array_map('\trim', \explode("\n", $text)));
+                $suffixSet = array_filter(array_map('\trim', explode("\n", $text)));
                 foreach ($suffixSet as $suffix)
                 {
-                    $suffixInfo = \explode(':', \trim($suffix));
+                    $suffixInfo = explode(':', trim($suffix));
                     $suffixCount[$suffixInfo[0]] = (int)$suffixInfo[1];
                 }
             }

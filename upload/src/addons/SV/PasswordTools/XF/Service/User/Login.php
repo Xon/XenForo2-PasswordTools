@@ -6,6 +6,7 @@
 namespace SV\PasswordTools\XF\Service\User;
 
 use SV\PasswordTools\XF\Entity\UserAuth;
+use function strlen;
 
 /**
  * Extends \XF\Service\User\Login
@@ -15,7 +16,7 @@ class Login extends XFCP_Login
     public function validate($password, &$error = null)
     {
         $user = parent::validate($password, $error);
-        if (\strlen($password) !== 0 && $user)
+        if (strlen($password) !== 0 && $user)
         {
             /** @var UserAuth $auth */
             $auth = $user->Auth;

@@ -5,13 +5,14 @@ namespace SV\PasswordTools\XF\Repository;
 use SV\PasswordTools\Globals;
 use SV\PasswordTools\XF\Entity\UserAuth;
 use XF\Entity\User;
+use function count;
 
 /**
  * Extends \XF\Repository\Tfa
  */
 class Tfa extends XFCP_Tfa
 {
-    public function isSvForcedEmail2fa(\XF\Entity\User $user, ?string $trustKey = null) : bool
+    public function isSvForcedEmail2fa(\XF\Entity\User $user, ?string $trustKey = null): bool
     {
         if (!\XF::config('enableTfa') || !(\XF::options()->svPwnedPasswordForceEmail2FA ?? false))
         {
@@ -82,7 +83,7 @@ class Tfa extends XFCP_Tfa
                 }
             }
 
-            if (\count($providers) === 0)
+            if (count($providers) === 0)
             {
                 // If a user has use_tfa = true and providers = ['backup'], a state that XF considers to be valid but treats the same as use_tfa = false
                 // Force an entry into xf_user_tfa, so the email 2fa is enabled and can store its code
@@ -139,6 +140,7 @@ class Tfa extends XFCP_Tfa
      * @param bool                   $updateLastUsed
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
+     * @throws \XF\Db\DuplicateKeyException
      */
     public function updateUserTfaData(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, $updateLastUsed = true)
     {
@@ -173,7 +175,7 @@ class Tfa extends XFCP_Tfa
         {
             $userTfa->save();
         }
-        /** @noinspection PhpRedundantCatchClauseInspection */
+            /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\XF\Db\DuplicateKeyException $e)
         {
             if ($this->db()->inTransaction())
@@ -199,6 +201,7 @@ class Tfa extends XFCP_Tfa
      * @param array                  $config
      * @param false                  $backupAdded
      * @return \XF\Mvc\Entity\Entity|null
+     * @throws \XF\Db\Exception
      * @noinspection PhpMissingReturnTypeInspection
      */
     public function enableUserTfaProvider(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, &$backupAdded = false)
@@ -210,12 +213,12 @@ class Tfa extends XFCP_Tfa
         {
             unset($config['np_enabled_as_fallback']);
             // delete via raw query to avoid tfa cleanup
-            $db->query('delete from xf_user_tfa where user_id = ? and provider_id = ?', [$user->user_id, $provider->provider_id]);
+            $db->query('DELETE FROM xf_user_tfa WHERE user_id = ? AND provider_id = ?', [$user->user_id, $provider->provider_id]);
         }
 
         try
         {
-            return parent::enableUserTfaProvider($user, $provider, $config,$backupAdded);
+            return parent::enableUserTfaProvider($user, $provider, $config, $backupAdded);
         }
         finally
         {

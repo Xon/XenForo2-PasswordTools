@@ -4,6 +4,7 @@ namespace SV\PasswordTools\Option;
 
 use XF\Entity\Option;
 use XF\Option\AbstractOption;
+use function trim, strlen;
 
 /**
  * Class BlacklistPassword
@@ -15,7 +16,7 @@ class BlacklistPassword extends AbstractOption
     public static function renderOption(Option $option, array $htmlParams): string
     {
         $choices = [];
-        foreach ($option->option_value AS $word)
+        foreach ($option->option_value as $word)
         {
             $choices[] = $word;
         }
@@ -30,10 +31,10 @@ class BlacklistPassword extends AbstractOption
     {
         $output = [];
 
-        foreach ($value AS $word)
+        foreach ($value as $word)
         {
-            $word = \utf8_trim($word);
-            if (\strlen($word) === 0)
+            $word = trim($word);
+            if (strlen($word) === 0)
             {
                 continue;
             }
