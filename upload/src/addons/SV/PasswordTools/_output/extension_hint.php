@@ -23,8 +23,3 @@ namespace SV\PasswordTools\XF\Service\User
 {
 	class XFCP_Login extends \XF\Service\User\Login {}
 }
-
-namespace SV\PasswordTools\XF\Template
-{
-	class XFCP_Templater extends \XF\Template\Templater {}
-}

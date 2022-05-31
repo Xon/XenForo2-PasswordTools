@@ -1,0 +1,17 @@
+{
+    "cron_class": "SV\\PasswordTools\\Cron\\CleanUp",
+    "cron_method": "runDailyCleanUp",
+    "run_rules": {
+        "day_type": "dom",
+        "dom": [
+            -1
+        ],
+        "hours": [
+            0
+        ],
+        "minutes": [
+            6
+        ]
+    },
+    "active": true
+}
