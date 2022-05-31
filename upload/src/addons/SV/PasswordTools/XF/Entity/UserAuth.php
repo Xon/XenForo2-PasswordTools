@@ -3,7 +3,7 @@
 namespace SV\PasswordTools\XF\Entity;
 
 use XF\Mvc\Entity\Structure;
-use function is_callable, utf8_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
+use function is_callable, utf8_strlen, strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 
 /**
  * Class UserAuth
@@ -14,6 +14,8 @@ use function is_callable, utf8_strlen, array_merge, strtoupper, sha1, substr, js
  */
 class UserAuth extends XFCP_UserAuth
 {
+    protected $svZxcvbnMaxPasswordLength = 256;
+
     /** @noinspection PhpMissingReturnTypeInspection */
     public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
@@ -71,6 +73,16 @@ class UserAuth extends XFCP_UserAuth
     protected function checkPasswordWithZxcvbn(string $password): bool
     {
         $options = $this->app()->options();
+
+        // Zxcvbn is vulnerable to a Denial of Service attack when the raw password is too long
+        if (strlen($password) > $this->svZxcvbnMaxPasswordLength)
+        {
+            $this->error(\XF::phrase('svPasswordStrengthMeter_password_too_long', [
+                'maxLength' => $this->svZxcvbnMaxPasswordLength,
+            ]), 'password');
+
+            return false;
+        }
 
         $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
 
