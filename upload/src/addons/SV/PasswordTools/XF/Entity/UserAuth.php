@@ -25,6 +25,8 @@ class UserAuth extends XFCP_UserAuth
             return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
         }
 
+        $options = $this->app()->options();
+
         if (!($options->svEnforcePasswordComplexityForAdmins ?? false) && $this->getOption('svAdminEdit'))
         {
             // Password checks are disabled in admin.php, and this is happening in admin.php or via an automated process
