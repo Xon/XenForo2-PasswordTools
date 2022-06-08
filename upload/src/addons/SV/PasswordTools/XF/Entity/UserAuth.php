@@ -19,22 +19,16 @@ class UserAuth extends XFCP_UserAuth
     /** @noinspection PhpMissingReturnTypeInspection */
     public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
-        $options = $this->app()->options();
-
-        $user = $this->User;
-        if ($user)
+        if (!$updatePasswordDate)
         {
-            $applyToAdminEdit = (bool)($options->svEnforcePasswordComplexityForAdmins ?? false);
-            $isAdminEdit = $user->getOption('admin_edit');
-            $profile = $user->getRelation('Profile');
-            if ($profile && $profile->getOption('admin_edit'))
-            {
-                $isAdminEdit = true;
-            }
-            if (!$updatePasswordDate || $isAdminEdit && !$applyToAdminEdit)
-            {
-                return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
-            }
+            // The user's password isn't changing; the auth class or config is just being updated, e.g. switching from bcrypt to argon2 or rounds
+            return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+        }
+
+        if (!($options->svEnforcePasswordComplexityForAdmins ?? false) && $this->getOption('svAdminEdit'))
+        {
+            // Password checks are disabled in admin.php, and this is happening in admin.php or via an automated process
+            return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
         }
 
         foreach (($options->svPasswordToolsCheckTypes ?? []) as $checkType => $check)
@@ -339,6 +333,7 @@ class UserAuth extends XFCP_UserAuth
         $structure->columns['sv_pwned_password_check'] = ['type' => self::UINT, 'default' => null, 'nullable' => true, 'changeLog' => false];
         $structure->options['svResetPwnedPasswordCheck'] = true;
         $structure->options['svNagOnWeakPassword'] = 0;
+        $structure->options['svAdminEdit'] = false;
 
         return $structure;
     }
