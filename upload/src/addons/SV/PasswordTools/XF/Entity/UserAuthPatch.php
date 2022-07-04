@@ -8,7 +8,7 @@ namespace SV\PasswordTools\XF\Entity;
  *
  * @package SV\PasswordTools\XF\Entity
  */
-class UserAuthPatch extends XFCP_UserAuth
+class UserAuthPatch extends XFCP_UserAuthPatch
 {
     public function resetPassword()
     {
