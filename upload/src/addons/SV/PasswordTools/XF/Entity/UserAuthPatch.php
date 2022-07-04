@@ -12,14 +12,14 @@ class UserAuthPatch extends XFCP_UserAuthPatch
 {
     public function resetPassword()
     {
-        $this->setOption('svAdminEdit', true);
+        $this->setOption('svAutomatedEdit', true);
         try
         {
             return parent::resetPassword();
         }
         finally
         {
-            $this->resetOption('svAdminEdit');
+            $this->resetOption('svAutomatedEdit');
         }
     }
 }

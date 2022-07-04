@@ -19,7 +19,7 @@ class UserAuth extends XFCP_UserAuth
     /** @noinspection PhpMissingReturnTypeInspection */
     public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
     {
-        if (!$updatePasswordDate)
+        if (!$updatePasswordDate || $this->getOption('svAutomatedEdit'))
         {
             // The user's password isn't changing; the auth class or config is just being updated, e.g. switching from bcrypt to argon2 or rounds
             return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
@@ -336,6 +336,7 @@ class UserAuth extends XFCP_UserAuth
         $structure->options['svResetPwnedPasswordCheck'] = true;
         $structure->options['svNagOnWeakPassword'] = 0;
         $structure->options['svAdminEdit'] = false;
+        $structure->options['svAutomatedEdit'] = false;
 
         return $structure;
     }
