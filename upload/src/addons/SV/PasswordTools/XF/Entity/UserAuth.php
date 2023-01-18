@@ -282,7 +282,7 @@ class UserAuth extends XFCP_UserAuth
         {
             if ($this->getOption('svResetPwnedPasswordCheck'))
             {
-                $this->fastUpdate('sv_pwned_password_check', 0);
+                $this->fastUpdate('sv_pwned_password_check', null);
                 /** @var \XF\Repository\UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');

@@ -26,6 +26,8 @@ class Login extends XFCP_Login
             {
                 return $user;
             }
+            // If $lastPwnedPasswordCheck is non-empty, this implies the last compromised password check failed
+            // The value will be reset to null on the next password change, allowing 2fa to be forced if configured without additional compromised password checks
             $lastPwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
             $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 86400);
             if ($lastPwnedPasswordCheck + $recurring < \XF::$time)
