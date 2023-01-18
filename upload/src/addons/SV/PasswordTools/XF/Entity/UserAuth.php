@@ -291,9 +291,15 @@ class UserAuth extends XFCP_UserAuth
             $useCount = $this->getOption('svNagOnWeakPassword');
             if ($useCount)
             {
+                $this->flagPwnedPasswordCheck();
                 $this->svNagOnWeakPasswordDefer($useCount);
             }
         }
+    }
+
+    public function flagPwnedPasswordCheck(): void
+    {
+        $this->fastUpdate('sv_pwned_password_check', \XF::$time);
     }
 
     public function svNagOnWeakPasswordDefer(int $useCount): void
@@ -312,7 +318,6 @@ class UserAuth extends XFCP_UserAuth
 
     public function svNagOnWeakPassword(int $useCount): void
     {
-        $this->fastUpdate('sv_pwned_password_check', \XF::$time);
         /** @var \XF\Repository\UserAlert $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->alert(
