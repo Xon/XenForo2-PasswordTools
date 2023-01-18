@@ -27,8 +27,7 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        $pwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
-        if ($pwnedPasswordCheck === 0)
+        if (!$auth->hasPwnedPassword())
         {
             return false;
         }
