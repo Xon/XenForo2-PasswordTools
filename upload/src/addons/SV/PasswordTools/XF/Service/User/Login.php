@@ -16,13 +16,13 @@ class Login extends XFCP_Login
     public function validate($password, &$error = null)
     {
         $user = parent::validate($password, $error);
-        if (strlen($password) !== 0 && $user)
+        if (strlen($password) !== 0 && $user !== null)
         {
             /** @var UserAuth $auth */
             $auth = $user->Auth;
             $options = \XF::options();
-            $checkPwnedPassword = ($options->svAlertOnCompromisedPasswordOnLogin ?? true);
-            if (!$auth || !$checkPwnedPassword)
+            $checkPwnedPassword = (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
+            if ($auth === null || !$checkPwnedPassword)
             {
                 return $user;
             }
