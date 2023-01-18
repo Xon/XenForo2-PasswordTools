@@ -30,20 +30,20 @@ class Login extends XFCP_Login
             $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 86400);
             if ($lastPwnedPasswordCheck + $recurring < \XF::$time)
             {
-                \XF::runLater(function () use ($auth, $user, $password) {
-                    try
+                // the pwned password check needs to run after the password validation, but before the 2fa check
+                // otherwise the 'Force email two factor authentication on compromised password' will not reliably trigger
+                try
+                {
+                    $useCount = 0;
+                    if ($auth->isPwnedPassword($password, $useCount, false))
                     {
-                        $useCount = 0;
-                        if ($auth->isPwnedPassword($password, $useCount, false))
-                        {
-                            $auth->svNagOnWeakPassword($useCount);
-                        }
+                        $auth->svNagOnWeakPassword($useCount);
                     }
-                    catch (\Throwable $e)
-                    {
-                        \XF::logException($e);
-                    }
-                });
+                }
+                catch (\Throwable $e)
+                {
+                    \XF::logException($e);
+                }
             }
         }
 
