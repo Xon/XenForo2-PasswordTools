@@ -141,7 +141,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($minimumUsages < 1 && $minimumUsagesSoft < 1)
         {
-            return true;
+            return false;
         }
 
         $hash = strtoupper(sha1($password));
