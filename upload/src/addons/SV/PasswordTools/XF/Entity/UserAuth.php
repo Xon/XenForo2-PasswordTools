@@ -348,6 +348,11 @@ class UserAuth extends XFCP_UserAuth
         return false;
     }
 
+    public function svIsForceEmail2Fa(): bool
+    {
+        return \XF::config('enableTfa') && (\XF::options()->svPwnedPasswordForceEmail2FA ?? false);
+    }
+
     /** @noinspection PhpMissingReturnTypeInspection */
     public static function getStructure(Structure $structure)
     {
