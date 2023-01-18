@@ -11,6 +11,7 @@ use function is_callable, utf8_strlen, strlen, array_merge, strtoupper, sha1, su
  *
  * @package SV\PasswordTools\XF\Entity
  * @property int|null sv_pwned_password_check
+ * @property int|null sv_pwned_password_check_
  */
 class UserAuth extends XFCP_UserAuth
 {
@@ -332,12 +333,26 @@ class UserAuth extends XFCP_UserAuth
         );
     }
 
+    protected function getSvPwnedPasswordCheck(): ?int
+    {
+        $result = $this->sv_pwned_password_check_;
+
+        if ($this->getOption('svForcePwnedPassword') && ($result === 0 || $result === null))
+        {
+            $result = 1; // This causes \SV\PasswordTools\XF\Repository\Tfa::isSvForcedEmail2fa to return true
+        }
+
+        return $result;
+    }
+
     /** @noinspection PhpMissingReturnTypeInspection */
     public static function getStructure(Structure $structure)
     {
         $structure = parent::getStructure($structure);
 
         $structure->columns['sv_pwned_password_check'] = ['type' => self::UINT, 'default' => null, 'nullable' => true, 'changeLog' => false];
+        $structure->getters['sv_pwned_password_check'] = ['getter' => 'getSvPwnedPasswordCheck', 'cache' => false];
+        $structure->options['svForcePwnedPassword'] = false;
         $structure->options['svResetPwnedPasswordCheck'] = true;
         $structure->options['svNagOnWeakPassword'] = 0;
         $structure->options['svAdminEdit'] = false;
