@@ -20,18 +20,24 @@ class Login extends XFCP_Login
         {
             /** @var UserAuth $auth */
             $auth = $user->Auth;
-            $options = \XF::options();
-            $checkPwnedPassword = (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
-            if ($auth === null || !$checkPwnedPassword)
+            if ($auth === null)
             {
                 return $user;
             }
+
+            $options = \XF::options();
+            $checkAndNagOnCompromisedPassword = (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
+            $forceEmail2fa = $auth->svIsForceEmail2Fa();
+            if (!$checkAndNagOnCompromisedPassword && !$forceEmail2fa)
+            {
+                return $user;
+            }
+
             // If sv_pwned_password_check is non-empty, this implies the last compromised password check failed
             // The value will be reset to null on the next password change, allowing 2fa to be forced if configured without additional compromised password checks
             $lastPwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
             $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 24) * 60*60;
-            $checkAndNagOnCompromisedPassword = $lastPwnedPasswordCheck + $recurring < \XF::$time;
-            if ($checkAndNagOnCompromisedPassword || $auth->svIsForceEmail2Fa())
+            if ($checkAndNagOnCompromisedPassword && ($lastPwnedPasswordCheck + $recurring < \XF::$time) || $forceEmail2fa)
             {
                 // the pwned password check needs to run after the password validation, but before the 2fa check
                 // otherwise the 'Force email two factor authentication on compromised password' option will not reliably trigger
