@@ -286,6 +286,9 @@ class UserAuth extends XFCP_UserAuth
                 /** @var \XF\Repository\UserAlert $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
+                /** @var \XF\Service\User\UserGroupChange $userGroupChangeService */
+                $userGroupChangeService = \XF::app()->service('XF:User\UserGroupChange');
+                $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
             }
 
             $useCount = $this->getOption('svNagOnWeakPassword');

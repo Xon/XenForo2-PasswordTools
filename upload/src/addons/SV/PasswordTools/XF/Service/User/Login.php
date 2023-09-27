@@ -26,9 +26,10 @@ class Login extends XFCP_Login
             }
 
             $options = \XF::options();
-            $alertOnCompromisedPassword= (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
+            $alertOnCompromisedPassword = (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
+            $pwnedPasswordGroupId = (int)($options->svPwnedPasswordGroup ?? 0);
             $forceEmail2fa = $auth->svIsForceEmail2Fa();
-            if (!$alertOnCompromisedPassword && !$forceEmail2fa)
+            if (!$pwnedPasswordGroupId && !$alertOnCompromisedPassword && !$forceEmail2fa)
             {
                 return $user;
             }
@@ -39,7 +40,7 @@ class Login extends XFCP_Login
             $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 24) * 60*60;
             $sendCompromisedPasswordAlert = $alertOnCompromisedPassword && ($lastPwnedPasswordCheck + $recurring < \XF::$time);
 
-            if ($sendCompromisedPasswordAlert || $forceEmail2fa)
+            if ($sendCompromisedPasswordAlert || $forceEmail2fa || $pwnedPasswordGroupId !== 0)
             {
                 // the pwned password check needs to run after the password validation, but before the 2fa check
                 // otherwise the 'Force email two factor authentication on compromised password' option will not reliably trigger
@@ -48,7 +49,19 @@ class Login extends XFCP_Login
                     $useCount = 0;
                     if ($auth->isPwnedPassword($password, $useCount, false))
                     {
+                        $db = $this->db();
+                        $db->beginTransaction();
+
                         $auth->flagPwnedPasswordCheck();
+                        if ($pwnedPasswordGroupId !== 0 && !$user->isMemberOf($pwnedPasswordGroupId))
+                        {
+                            /** @var \XF\Service\User\UserGroupChange $userGroupChangeService */
+                            $userGroupChangeService = \XF::app()->service('XF:User\UserGroupChange');
+                            $userGroupChangeService->addUserGroupChange($user->user_id, 'svCompromisedPassword', $pwnedPasswordGroupId);
+                        }
+
+                        $db->commit();
+
                         if ($sendCompromisedPasswordAlert)
                         {
                             $auth->svNagOnWeakPassword($useCount);
