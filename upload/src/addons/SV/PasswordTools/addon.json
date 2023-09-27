@@ -2,17 +2,28 @@
     "legacy_addon_id": "KL_PasswordTools",
     "title": "Password Tools",
     "description": "Cause safer passwords are better passwords",
-    "version_id": 3070500,
-    "version_string": "3.7.5",
+    "version_id": 3080000,
+    "version_string": "3.8.0",
     "dev": "Atelier Aphelion",
     "dev_url": "https://atelieraphelion.com",
     "faq_url": "",
     "support_url": "https://xenforo.com/community/resources/password-tools.6704/",
-    "extra_urls": [],
+    "extra_urls": {
+        "Add-on site": "https://atelieraphelion.com/products/password-tools.163/"
+    },
     "require": {
-        "XF": [2020070, "XenForo 2.2.0+"],
-        "php": ["7.2.0", "PHP 7.2.0+"],
-        "SV/StandardLib": [1000000,"Standard Library by Xon v1.0.0+"]
+        "SV/StandardLib": [
+            2001180000,
+            "Standard Library by Xon v1.18.0+"
+        ],
+        "XF": [
+            "2.2.0",
+            "XenForo 2.2.0+"
+        ],
+        "php": [
+            "7.2.0",
+            "PHP 7.2.0+"
+        ]
     },
     "icon": "fa-key",
     "composer_autoload": "_vendor/composer"
