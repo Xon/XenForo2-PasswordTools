@@ -4,6 +4,7 @@ namespace SV\PasswordTools\Option;
 
 use XF\Entity\Option;
 use XF\Option\AbstractOption;
+use function count;
 use function trim, strlen;
 
 /**
@@ -23,7 +24,7 @@ class BlacklistPassword extends AbstractOption
 
         return self::getTemplate('admin:option_template_svPasswordStrengthMeter_blacklist', $option, $htmlParams, [
             'choices'     => $choices,
-            'nextCounter' => \count($choices)
+            'nextCounter' => count($choices)
         ]);
     }
 

@@ -2,7 +2,7 @@
 
 namespace SV\PasswordTools;
 
-class Globals
+abstract class Globals
 {
     /** @var bool */
     public static $forceEmail2FA = false;

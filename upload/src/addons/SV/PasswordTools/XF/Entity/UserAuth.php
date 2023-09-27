@@ -3,6 +3,11 @@
 namespace SV\PasswordTools\XF\Entity;
 
 use XF\Mvc\Entity\Structure;
+use XF\Repository\UserAlert as UserAlertRepo;
+use XF\Service\User\UserGroupChange as UserGroupChangeService;
+use XF\Util\Php;
+use ZxcvbnPhp\Matchers\DictionaryMatch;
+use ZxcvbnPhp\Zxcvbn;
 use function is_callable, utf8_strlen, strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 
 /**
@@ -37,7 +42,7 @@ class UserAuth extends XFCP_UserAuth
         {
             if ($check)
             {
-                $checkMethodFunc = [$this, 'checkPasswordWith' . \XF\Util\Php::camelCase($checkType)];
+                $checkMethodFunc = [$this, 'checkPasswordWith' . Php::camelCase($checkType)];
                 if (is_callable($checkMethodFunc))
                 {
                     if (!$checkMethodFunc($password))
@@ -87,7 +92,7 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        $zxcvbn = new \ZxcvbnPhp\Zxcvbn();
+        $zxcvbn = new Zxcvbn();
 
         $blackList = array_merge(($options->svPasswordStrengthMeter_blacklist ?? []), [$options->boardTitle]);
         $result = $zxcvbn->passwordStrength($password, $blackList);
@@ -101,7 +106,7 @@ class UserAuth extends XFCP_UserAuth
 
         if (($options->svPasswordStrengthMeter_force ?? false) && !empty($result['sequence']))
         {
-            /** @var \ZxcvbnPhp\Matchers\DictionaryMatch $matchSequence */
+            /** @var DictionaryMatch $matchSequence */
             foreach ($result['sequence'] as $matchSequence)
             {
                 if (isset($matchSequence->dictionaryName) && $matchSequence->dictionaryName === 'user_inputs')
@@ -283,11 +288,11 @@ class UserAuth extends XFCP_UserAuth
             if ($this->getOption('svResetPwnedPasswordCheck'))
             {
                 $this->fastUpdate('sv_pwned_password_check', null);
-                /** @var \XF\Repository\UserAlert $alertRepo */
+                /** @var UserAlertRepo $alertRepo */
                 $alertRepo = $this->repository('XF:UserAlert');
                 $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
-                /** @var \XF\Service\User\UserGroupChange $userGroupChangeService */
-                $userGroupChangeService = \XF::app()->service('XF:User\UserGroupChange');
+                /** @var UserGroupChangeService $userGroupChangeService */
+                $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
                 $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
             }
 
@@ -321,13 +326,13 @@ class UserAuth extends XFCP_UserAuth
 
     public function svNagOnWeakPassword(int $useCount): void
     {
-        /** @var \XF\Repository\UserAlert $alertRepo */
+        /** @var UserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->alert(
             $this->User,
             0, '',
             'user', $this->User->user_id,
-            "pwned_password", [
+            'pwned_password', [
                 'depends_on_addon_id' => 'SV/PasswordTools',
                 'count'               => $useCount,
                 'countFormatted'      => \XF::language()->numberFormat($useCount),

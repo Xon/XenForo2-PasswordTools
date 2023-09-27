@@ -6,6 +6,7 @@
 namespace SV\PasswordTools\XF\Service\User;
 
 use SV\PasswordTools\XF\Entity\UserAuth;
+use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use function strlen;
 
 /**
@@ -43,7 +44,7 @@ class Login extends XFCP_Login
             if ($sendCompromisedPasswordAlert || $forceEmail2fa || $pwnedPasswordGroupId !== 0)
             {
                 // the pwned password check needs to run after the password validation, but before the 2fa check
-                // otherwise the 'Force email two factor authentication on compromised password' option will not reliably trigger
+                // otherwise the 'Force email two-factor authentication on compromised password' option will not reliably trigger
                 try
                 {
                     $useCount = 0;
@@ -55,8 +56,8 @@ class Login extends XFCP_Login
                         $auth->flagPwnedPasswordCheck();
                         if ($pwnedPasswordGroupId !== 0 && !$user->isMemberOf($pwnedPasswordGroupId))
                         {
-                            /** @var \XF\Service\User\UserGroupChange $userGroupChangeService */
-                            $userGroupChangeService = \XF::app()->service('XF:User\UserGroupChange');
+                            /** @var UserGroupChangeService $userGroupChangeService */
+                            $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
                             $userGroupChangeService->addUserGroupChange($user->user_id, 'svCompromisedPassword', $pwnedPasswordGroupId);
                         }
 

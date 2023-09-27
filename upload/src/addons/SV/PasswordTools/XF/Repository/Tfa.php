@@ -4,7 +4,13 @@ namespace SV\PasswordTools\XF\Repository;
 
 use SV\PasswordTools\Globals;
 use SV\PasswordTools\XF\Entity\UserAuth;
-use XF\Entity\User;
+use XF\Db\DuplicateKeyException;
+use XF\Db\Exception as DbException;
+use XF\Entity\TfaProvider as TfaProviderEntity;
+use XF\Entity\User as UserEntity;
+use XF\Entity\UserTfa as UserTfaEntity;
+use XF\Mvc\Entity\Entity;
+use XF\Repository\UserTfaTrusted as UserTfaTrustedRepo;
 use function count;
 
 /**
@@ -12,7 +18,7 @@ use function count;
  */
 class Tfa extends XFCP_Tfa
 {
-    public function isSvForcedEmail2fa(\XF\Entity\User $user, ?string $trustKey = null): bool
+    public function isSvForcedEmail2fa(UserEntity $user, ?string $trustKey = null): bool
     {
         /** @var UserAuth $auth */
         $auth = $user->Auth;
@@ -32,14 +38,14 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        /** @var \XF\Repository\UserTfaTrusted $tfaTrustRepo */
+        /** @var UserTfaTrustedRepo $tfaTrustRepo */
         $tfaTrustRepo = $this->repository('XF:UserTfaTrusted');
         if ($trustKey && $tfaTrustRepo->getTfaTrustRecord($user->user_id, $trustKey))
         {
             return false;
         }
 
-        /** @var \XF\Entity\TfaProvider $email2FaProvider */
+        /** @var TfaProviderEntity $email2FaProvider */
         $email2FaProvider = $this->app()->find('XF:TfaProvider', 'email');
         $handler = $email2FaProvider->handler ?? null;
         if ($handler === null || $handler->requiresConfig() || !$handler->canEnable())
@@ -71,7 +77,7 @@ class Tfa extends XFCP_Tfa
                 Globals::$forceEmail2FA = false;
             }
 
-            /** @var \XF\Entity\TfaProvider $email */
+            /** @var TfaProviderEntity $email */
             $email = $providers['email'] ?? null;
             if ($email !== null)
             {
@@ -98,7 +104,7 @@ class Tfa extends XFCP_Tfa
     }
 
     /** @noinspection PhpMissingReturnTypeInspection */
-    public function isUserTfaConfirmationRequired(\XF\Entity\User $user, $trustKey = null)
+    public function isUserTfaConfirmationRequired(UserEntity $user, $trustKey = null)
     {
         $isRequired = parent::isUserTfaConfirmationRequired($user, $trustKey);
         if ($isRequired)
@@ -118,7 +124,7 @@ class Tfa extends XFCP_Tfa
     /** @noinspection PhpMissingReturnTypeInspection */
     public function getAvailableProvidersForUser($userId)
     {
-        /** @var User $user */
+        /** @var UserEntity $user */
         $user = $this->app()->find('XF:User', $userId);
 
         Globals::$forceEmail2FA = $user !== null && $this->isSvForcedEmail2fa($user);
@@ -133,15 +139,15 @@ class Tfa extends XFCP_Tfa
     }
 
     /**
-     * @param User                   $user
-     * @param \XF\Entity\TfaProvider $provider
-     * @param array                  $config
-     * @param bool                   $updateLastUsed
+     * @param UserEntity        $user
+     * @param TfaProviderEntity $provider
+     * @param array             $config
+     * @param bool              $updateLastUsed
      * @return bool
      * @noinspection PhpMissingReturnTypeInspection
-     * @throws \XF\Db\DuplicateKeyException
+     * @throws DuplicateKeyException
      */
-    public function updateUserTfaData(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, $updateLastUsed = true)
+    public function updateUserTfaData(UserEntity $user, TfaProviderEntity $provider, array $config, $updateLastUsed = true)
     {
         $result = parent::updateUserTfaData($user, $provider, $config, $updateLastUsed);
         if ($result || $provider->provider_id !== 'email' || !$this->isSvForcedEmail2fa($user))
@@ -155,9 +161,9 @@ class Tfa extends XFCP_Tfa
         return true;
     }
 
-    protected function addEmail2faRecord(\XF\Entity\User $user, array $config): \XF\Entity\UserTfa
+    protected function addEmail2faRecord(UserEntity $user, array $config): UserTfaEntity
     {
-        /** @var \XF\Entity\UserTfa $userTfa */
+        /** @var UserTfaEntity $userTfa */
         $userTfa = $this->em->create('XF:UserTfa');
 
         // signal this is a tainted email provider until it gets enabled explicitly
@@ -175,7 +181,7 @@ class Tfa extends XFCP_Tfa
             $userTfa->save();
         }
             /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (\XF\Db\DuplicateKeyException $e)
+        catch (DuplicateKeyException $e)
         {
             if ($this->db()->inTransaction())
             {
@@ -195,15 +201,15 @@ class Tfa extends XFCP_Tfa
     }
 
     /**
-     * @param User                   $user
-     * @param \XF\Entity\TfaProvider $provider
-     * @param array                  $config
-     * @param false                  $backupAdded
-     * @return \XF\Mvc\Entity\Entity|null
-     * @throws \XF\Db\Exception
+     * @param UserEntity        $user
+     * @param TfaProviderEntity $provider
+     * @param array             $config
+     * @param false             $backupAdded
+     * @return Entity|null
+     * @throws DbException
      * @noinspection PhpMissingReturnTypeInspection
      */
-    public function enableUserTfaProvider(\XF\Entity\User $user, \XF\Entity\TfaProvider $provider, array $config, &$backupAdded = false)
+    public function enableUserTfaProvider(UserEntity $user, TfaProviderEntity $provider, array $config, &$backupAdded = false)
     {
         $db = $this->db();
         $db->beginTransaction();

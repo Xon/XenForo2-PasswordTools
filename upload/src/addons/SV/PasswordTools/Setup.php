@@ -9,6 +9,7 @@ use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
+use XF\Entity\Option as OptionEntity;
 
 class Setup extends AbstractSetup
 {
@@ -64,9 +65,11 @@ class Setup extends AbstractSetup
 
     public function upgrade2000000Step3(): void
     {
-        /** @var \XF\Entity\Option $option */
-        $option = \XF::finder('XF:Option')->whereId('svPasswordToolsCheckTypes')->fetchOne();
-        if ($option)
+        /** @var OptionEntity $option */
+        $option = \XF::finder('XF:Option')
+                     ->whereId('svPasswordToolsCheckTypes')
+                     ->fetchOne();
+        if ($option !== null)
         {
             $values = $option->option_value;
             $orderedValues = [
