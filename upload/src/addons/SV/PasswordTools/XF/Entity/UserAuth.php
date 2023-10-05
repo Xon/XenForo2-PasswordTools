@@ -283,26 +283,39 @@ class UserAuth extends XFCP_UserAuth
     {
         parent::_postSave();
 
-        if ($this->isChanged('data'))
+        if ($this->isUpdate() && $this->isChanged('data'))
         {
-            if ($this->getOption('svResetPwnedPasswordCheck'))
+            if ($this->sv_pwned_password_check && $this->getOption('svResetPwnedPasswordCheck'))
             {
                 $this->fastUpdate('sv_pwned_password_check', null);
-                /** @var UserAlertRepo $alertRepo */
-                $alertRepo = $this->repository('XF:UserAlert');
-                $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
-                /** @var UserGroupChangeService $userGroupChangeService */
-                $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
-                $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
+                // this will touch the xf_user record
+                $this->svClearCompromisedPasswordStateLater();
             }
 
-            $useCount = $this->getOption('svNagOnWeakPassword');
-            if ($useCount)
+            $useCount = (int)$this->getOption('svNagOnWeakPassword');
+            if ($useCount !== 0)
             {
                 $this->flagPwnedPasswordCheck();
                 $this->svNagOnWeakPasswordDefer($useCount);
             }
         }
+    }
+
+    protected function svClearCompromisedPasswordStateLater(): void
+    {
+        \XF::runOnce('svCompromisedPassword'.$this->user_id, function() {
+            $this->svClearCompromisedPasswordState();
+        });
+    }
+
+    protected function svClearCompromisedPasswordState(): void
+    {
+        /** @var UserAlertRepo $alertRepo */
+        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
+        /** @var UserGroupChangeService $userGroupChangeService */
+        $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
+        $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
     }
 
     public function flagPwnedPasswordCheck(): void
