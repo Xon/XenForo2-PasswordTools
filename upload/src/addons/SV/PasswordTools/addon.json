@@ -9,6 +9,7 @@
     "faq_url": "",
     "support_url": "https://xenforo.com/community/resources/password-tools.6704/",
     "extra_urls": {
+        "License": "https://atelieraphelion.com/products/password-tools.163/copyright",
         "Add-on site": "https://atelieraphelion.com/products/password-tools.163/"
     },
     "require": {
