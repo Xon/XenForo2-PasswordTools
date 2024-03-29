@@ -1,5 +1,7 @@
 {
     "config": {
+        "optimize-autoloader": true,
+        "classmap-authoritative": true,
         "platform": {
             "php": "7.2.0"
         },
