@@ -20,6 +20,9 @@
                     "url": "https://github.com/Xon/zxcvbn-php.git",
                     "type": "git",
                     "reference":"php84"
+                },
+                "autoload": {
+                    "psr-4": { "ZxcvbnPhp\\": "src/" }
                 }
             }
         }

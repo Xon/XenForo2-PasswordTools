@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e67b4e4ef264e7adbf0e12fb18afad2",
+    "content-hash": "be1505ac5d64110eafb8894529ff0bd6",
     "packages": [
         {
             "name": "bjeavons/zxcvbn-php",
@@ -14,7 +14,12 @@
                 "url": "https://github.com/Xon/zxcvbn-php.git",
                 "reference": "php84"
             },
-            "type": "library"
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ZxcvbnPhp\\": "src/"
+                }
+            }
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -110,5 +115,5 @@
     "platform-overrides": {
         "php": "7.2.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
