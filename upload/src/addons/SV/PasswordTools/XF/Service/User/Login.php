@@ -6,6 +6,8 @@
 namespace SV\PasswordTools\XF\Service\User;
 
 use SV\PasswordTools\XF\Entity\UserAuth;
+use SV\StandardLib\Helper;
+use XF\Service\User\PasswordReset as PasswordResetService;
 use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use function strlen;
 
@@ -64,13 +66,39 @@ class Login extends XFCP_Login
                     $userGroupChangeService->addUserGroupChange($user->user_id, 'svCompromisedPassword', $pwnedPasswordGroupId);
                 }
 
-                if ($forcePasswordResetOnCompromisedPassword && $user->security_lock === '')
+                $passwordReset = null;
+                if ($forcePasswordResetOnCompromisedPassword)
                 {
-                    $user->security_lock = 'reset';
-                    $user->save();
+                    if (\XF::$versionId > 2020000)
+                    {
+                        if ($user->security_lock === '')
+                        {
+                            $user->security_lock = 'reset';
+                            $user->save();
+                        }
+                    }
+                    else
+                    {
+                        // prevent the security reset from happening again
+                        $auth->resetPassword();
+                        $auth->save();
+
+                        $passwordReset = Helper::service(PasswordResetService::class, $user);
+                        $passwordReset->setAdminReset(true);
+
+                        // prevent login
+                        $user = null;
+                        $error = \XF::phrase('svPasswordTools_compromised_password_forced_reset');
+                    }
                 }
 
                 $db->commit();
+
+                // XF2.1 support
+                if ($passwordReset !== null)
+                {
+                    $passwordReset->triggerConfirmation();
+                }
 
                 if ($sendCompromisedPasswordAlert)
                 {

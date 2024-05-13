@@ -21,13 +21,13 @@ class UserAuth extends XFCP_UserAuth
 {
     protected $svZxcvbnMaxPasswordLength = 256;
 
-    /** @noinspection PhpMissingReturnTypeInspection */
-    public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
+    public function svCheckPasswordOnSet(string $password, int $updatePasswordDate, \Closure $parentCallable): bool
     {
         if (!$updatePasswordDate || $this->getOption('svAutomatedEdit'))
         {
             // The user's password isn't changing; the auth class or config is just being updated, e.g. switching from bcrypt to argon2 or rounds
-            return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+            //return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+            return $parentCallable();
         }
 
         $options = $this->app()->options();
@@ -35,7 +35,8 @@ class UserAuth extends XFCP_UserAuth
         if (!($options->svEnforcePasswordComplexityForAdmins ?? false) && $this->getOption('svAdminEdit'))
         {
             // Password checks are disabled in admin.php, and this is happening in admin.php or via an automated process
-            return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+            //return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+            return $parentCallable();
         }
 
         foreach (($options->svPasswordToolsCheckTypes ?? []) as $checkType => $check)
@@ -58,7 +59,8 @@ class UserAuth extends XFCP_UserAuth
             return false;
         }
 
-        return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+        //return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
+        return $parentCallable();
     }
 
     protected function checkPasswordWithLength(string $password): bool

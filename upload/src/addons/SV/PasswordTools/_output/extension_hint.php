@@ -9,6 +9,7 @@ namespace SV\PasswordTools\XF\Entity
 	class XFCP_TfaProvider extends \XF\Entity\TfaProvider {}
 	class XFCP_User extends \XF\Entity\User {}
 	class XFCP_UserAuth extends \XF\Entity\UserAuth {}
+	class XFCP_UserAuthCompatPatch extends \XF\Entity\UserAuth {}
 	class XFCP_UserAuthPatch extends \XF\Entity\UserAuth {}
 }
 
