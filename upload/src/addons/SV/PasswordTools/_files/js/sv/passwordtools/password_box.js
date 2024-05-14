@@ -1,18 +1,23 @@
-!function()
-{
+// noinspection ES6ConvertVarToLetConst
+var SV = window.SV || {};
+// XF22 compat shim
+SV.$ = SV.$ || jQuery || null;
+SV.xf22 = SV.xf22 || !XF.On;
+
+(function() {
     "use strict";
 
     XF.Element.extend('password-strength', {
         __backup: {
-            init: 'superInit',
-            input: 'superInput',
+            init: 'svPasswordToolsInit',
+            input: 'svPasswordToolsInput',
         },
 
         init: function()
         {
             this.svPasswordToolsRejectFragments = null;
 
-            this.superInit();
+            this.svPasswordToolsInit();
 
             var fragmentElements = document.getElementsByClassName('js-svPasswordToolsRejectFragments');
 
@@ -40,11 +45,12 @@
         {
             if (!this.svPasswordToolsRejectFragments)
             {
-                this.superInput();
+                this.svPasswordToolsInput();
                 return;
             }
 
-            var password = this.$password.val(),
+            var field = this.password || this.$password.get(0);
+            var password = field.value,
                 result = zxcvbn(password, this.svPasswordToolsRejectFragments || []),
                 score = result.score,
                 value,
@@ -110,8 +116,14 @@
                 message += ' ' + messageExtra;
             }
 
-            this.$meter.val(value);
-            this.$meterText.text(message);
+            if (SV.xf22) {
+                this.$meter.val(value);
+                this.$meterText.text(message);
+            }
+            else {
+                this.meter.value = value
+                this.meterText.textContent = message
+            }
         },
     });
-}();
+}) ();
