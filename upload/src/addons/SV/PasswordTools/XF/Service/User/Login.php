@@ -61,8 +61,7 @@ class Login extends XFCP_Login
                 $auth->flagPwnedPasswordCheck();
                 if ($pwnedPasswordGroupId !== 0 && !$user->isMemberOf($pwnedPasswordGroupId))
                 {
-                    /** @var UserGroupChangeService $userGroupChangeService */
-                    $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
+                    $userGroupChangeService = Helper::service(UserGroupChangeService::class);
                     $userGroupChangeService->addUserGroupChange($user->user_id, 'svCompromisedPassword', $pwnedPasswordGroupId);
                 }
 

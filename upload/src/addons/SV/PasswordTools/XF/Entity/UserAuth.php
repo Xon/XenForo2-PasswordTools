@@ -2,6 +2,7 @@
 
 namespace SV\PasswordTools\XF\Entity;
 
+use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Structure;
 use XF\Repository\UserAlert as UserAlertRepo;
 use XF\Service\User\UserGroupChange as UserGroupChangeService;
@@ -315,8 +316,7 @@ class UserAuth extends XFCP_UserAuth
         /** @var UserAlertRepo $alertRepo */
         $alertRepo = $this->repository('XF:UserAlert');
         $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
-        /** @var UserGroupChangeService $userGroupChangeService */
-        $userGroupChangeService = \XF::app()->service(UserGroupChangeService::class);
+        $userGroupChangeService = Helper::service(UserGroupChangeService::class);
         $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
     }
 
