@@ -3,8 +3,7 @@
     "js/sv/passwordtools"
   ],
   "minify": [
-    "js/sv/passwordtools/password_box.js",
-    "js/sv/passwordtools/password_input.js"
+    "js/sv/passwordtools/password_box.js"
   ],
   "exec": [
     "composer install --working-dir=_build/upload/src/addons/{addon_id}/ --no-dev --optimize-autoloader",
