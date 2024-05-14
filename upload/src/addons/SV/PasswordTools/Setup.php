@@ -2,6 +2,7 @@
 
 namespace SV\PasswordTools;
 
+use SV\StandardLib\Helper;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
@@ -65,10 +66,7 @@ class Setup extends AbstractSetup
 
     public function upgrade2000000Step3(): void
     {
-        /** @var OptionEntity $option */
-        $option = \XF::finder('XF:Option')
-                     ->whereId('svPasswordToolsCheckTypes')
-                     ->fetchOne();
+        $option = Helper::find(OptionEntity::class, 'svPasswordToolsCheckTypes');
         if ($option !== null)
         {
             $values = $option->option_value;
