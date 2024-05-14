@@ -4,6 +4,7 @@ namespace SV\PasswordTools\XF\Repository;
 
 use SV\PasswordTools\Globals;
 use SV\PasswordTools\XF\Entity\UserAuth;
+use SV\StandardLib\Helper;
 use XF\Db\DuplicateKeyException;
 use XF\Db\Exception as DbException;
 use XF\Entity\TfaProvider as TfaProviderEntity;
@@ -38,8 +39,7 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        /** @var UserTfaTrustedRepo $tfaTrustRepo */
-        $tfaTrustRepo = $this->repository('XF:UserTfaTrusted');
+        $tfaTrustRepo = Helper::repository(UserTfaTrustedRepo::class);
         if ($trustKey && $tfaTrustRepo->getTfaTrustRecord($user->user_id, $trustKey))
         {
             return false;

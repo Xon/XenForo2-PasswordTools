@@ -313,8 +313,7 @@ class UserAuth extends XFCP_UserAuth
 
     protected function svClearCompromisedPasswordState(): void
     {
-        /** @var UserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
         $alertRepo->fastDeleteAlertsToUser($this->user_id, 'user', $this->user_id, 'pwned_password');
         $userGroupChangeService = Helper::service(UserGroupChangeService::class);
         $userGroupChangeService->removeUserGroupChange($this->user_id, 'svCompromisedPassword');
@@ -341,8 +340,7 @@ class UserAuth extends XFCP_UserAuth
 
     public function svNagOnWeakPassword(int $useCount): void
     {
-        /** @var UserAlertRepo $alertRepo */
-        $alertRepo = $this->repository('XF:UserAlert');
+        $alertRepo = Helper::repository(UserAlertRepo::class);
         $alertRepo->alert(
             $this->User,
             0, '',
