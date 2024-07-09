@@ -1,7 +1,7 @@
 // noinspection ES6ConvertVarToLetConst
 var SV = window.SV || {};
 // XF22 compat shim
-SV.$ = SV.$ || jQuery || null;
+SV.$ = SV.$ || window.jQuery || null;
 SV.xf22 = SV.xf22 || !XF.On;
 
 (function() {
