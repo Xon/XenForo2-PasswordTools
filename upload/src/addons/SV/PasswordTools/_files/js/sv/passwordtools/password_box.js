@@ -2,7 +2,6 @@
 var SV = window.SV || {};
 // XF22 compat shim
 SV.$ = SV.$ || window.jQuery || null;
-SV.xf22 = SV.xf22 || !XF.On;
 
 (function() {
     "use strict";
@@ -116,7 +115,7 @@ SV.xf22 = SV.xf22 || !XF.On;
                 message += ' ' + messageExtra;
             }
 
-            if (SV.xf22) {
+            if (typeof XF.on !== "function") { // XF 2.2
                 this.$meter.val(value);
                 this.$meterText.text(message);
             }
