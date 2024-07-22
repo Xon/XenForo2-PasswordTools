@@ -9,7 +9,7 @@ use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use XF\Util\Php;
 use ZxcvbnPhp\Matchers\DictionaryMatch;
 use ZxcvbnPhp\Zxcvbn;
-use function is_callable, utf8_strlen, strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
+use function is_callable, mb_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 
 /**
  * Class UserAuth
@@ -69,7 +69,7 @@ class UserAuth extends XFCP_UserAuth
         $options = $this->app()->options();
 
         $minLength = (int)($options->svPasswordStrengthMeter_min ?? 8);
-        if (utf8_strlen($password) < $minLength)
+        if (mb_strlen($password) < $minLength)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
                 'length' => $minLength
