@@ -15,6 +15,7 @@ if (\XF::$versionId < 2020000)
          * @noinspection PhpSignatureMismatchDuringInheritanceInspection
          * @noinspection PhpMissingReturnTypeInspection
          * @noinspection PhpDocSignatureInspection
+         * @noinspection PhpMissingParentCallCommonInspection
          */
         public function setPassword($password, $authClass = null, $updatePasswordDate = true)
         {
@@ -37,6 +38,7 @@ else
          * @noinspection PhpSignatureMismatchDuringInheritanceInspection
          * @noinspection PhpMissingReturnTypeInspection
          * @noinspection PhpDocSignatureInspection
+         * @noinspection PhpMissingParentCallCommonInspection
          */
         public function setPassword($password, $authClass = null, $updatePasswordDate = true, $allowReuse = true)
         {

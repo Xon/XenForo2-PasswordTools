@@ -10,6 +10,8 @@ use XF\Util\Php;
 use ZxcvbnPhp\Matchers\DictionaryMatch;
 use ZxcvbnPhp\Zxcvbn;
 use function is_callable, mb_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
+use function json_encode;
+use function strlen;
 
 /**
  * Class UserAuth
@@ -31,7 +33,7 @@ class UserAuth extends XFCP_UserAuth
             return $parentCallable();
         }
 
-        $options = $this->app()->options();
+        $options = \XF::options();
 
         if (!($options->svEnforcePasswordComplexityForAdmins ?? false) && $this->getOption('svAdminEdit'))
         {
@@ -66,7 +68,7 @@ class UserAuth extends XFCP_UserAuth
 
     protected function checkPasswordWithLength(string $password): bool
     {
-        $options = $this->app()->options();
+        $options = \XF::options();
 
         $minLength = (int)($options->svPasswordStrengthMeter_min ?? 8);
         if (mb_strlen($password) < $minLength)
@@ -83,7 +85,7 @@ class UserAuth extends XFCP_UserAuth
 
     protected function checkPasswordWithZxcvbn(string $password): bool
     {
-        $options = $this->app()->options();
+        $options = \XF::options();
 
         // Zxcvbn is vulnerable to a Denial of Service attack when the raw password is too long
         if (strlen($password) > $this->svZxcvbnMaxPasswordLength)
@@ -143,7 +145,7 @@ class UserAuth extends XFCP_UserAuth
 
     public function isPwnedPassword(string $password, int &$useCount, bool $cacheOnly): bool
     {
-        $options = $this->app()->options();
+        $options = \XF::options();
         $minimumUsages = (int)($options->svPwnedPasswordReuseCount ?? 0);
         $minimumUsagesSoft = (int)($options->svPwnedPasswordReuseCountSoft ?? 0);
 
@@ -184,8 +186,8 @@ class UserAuth extends XFCP_UserAuth
 
     protected function getPwnedPrefixMatches(string $prefix, ?int $cacheCutoff, bool $cacheOnly): ?array
     {
-        $options = $this->app()->options();
-        $db = $this->db();
+        $options = \XF::options();
+        $db = \XF::db();
 
         if ($cacheCutoff === null)
         {

@@ -55,7 +55,7 @@ class Login extends XFCP_Login
             $useCount = 0;
             if ($auth->isPwnedPassword($password, $useCount, false))
             {
-                $db = $this->db();
+                $db = \XF::db();
                 $db->beginTransaction();
 
                 $auth->flagPwnedPasswordCheck();

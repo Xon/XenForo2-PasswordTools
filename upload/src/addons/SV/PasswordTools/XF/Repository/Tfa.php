@@ -211,7 +211,7 @@ class Tfa extends XFCP_Tfa
      */
     public function enableUserTfaProvider(UserEntity $user, TfaProviderEntity $provider, array $config, &$backupAdded = false)
     {
-        $db = $this->db();
+        $db = \XF::db();
         $db->beginTransaction();
 
         if ($config['np_enabled_as_fallback'] ?? true)
