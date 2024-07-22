@@ -3,10 +3,7 @@
 namespace SV\PasswordTools\XF\Entity;
 
 /**
- * Class UserAuth
- * Extends \XF\Entity\UserAuth
- *
- * @package SV\PasswordTools\XF\Entity
+ * @extends \XF\Entity\UserAuth
  */
 class UserAuthPatch extends XFCP_UserAuthPatch
 {

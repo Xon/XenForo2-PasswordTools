@@ -12,7 +12,7 @@ use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use function strlen;
 
 /**
- * Extends \XF\Service\User\Login
+ * @extends \XF\Service\User\Login
  */
 class Login extends XFCP_Login
 {

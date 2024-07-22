@@ -3,11 +3,9 @@
 namespace SV\PasswordTools\XF\Entity;
 
 /**
- * Class User
- * Extends \XF\Entity\User
- *
- * @package SV\PasswordTools\XF\Entity
- * @property UserAuth|null Auth
+ * @extends \XF\Entity\User
+
+ * @property-read UserAuth|null $Auth
  */
 class User extends XFCP_User
 {

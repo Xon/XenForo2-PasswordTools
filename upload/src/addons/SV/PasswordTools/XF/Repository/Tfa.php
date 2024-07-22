@@ -15,7 +15,7 @@ use XF\Repository\UserTfaTrusted as UserTfaTrustedRepo;
 use function count;
 
 /**
- * Extends \XF\Repository\Tfa
+ * @extends \XF\Repository\Tfa
  */
 class Tfa extends XFCP_Tfa
 {

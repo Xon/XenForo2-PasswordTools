@@ -7,11 +7,6 @@ use XF\Option\AbstractOption;
 use function count;
 use function trim, strlen;
 
-/**
- * Class BlacklistPassword
- *
- * @package SV\PasswordTools\Option
- */
 class BlacklistPassword extends AbstractOption
 {
     public static function renderOption(Option $option, array $htmlParams): string

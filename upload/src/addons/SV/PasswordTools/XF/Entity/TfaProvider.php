@@ -8,7 +8,7 @@ namespace SV\PasswordTools\XF\Entity;
 use SV\PasswordTools\Globals;
 
 /**
- * Extends \XF\Entity\TfaProvider
+ * @extends \XF\Entity\TfaProvider
  */
 class TfaProvider extends XFCP_TfaProvider
 {

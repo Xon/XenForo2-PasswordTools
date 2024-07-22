@@ -14,11 +14,9 @@ use function json_encode;
 use function strlen;
 
 /**
- * Class UserAuth
- * Extends \XF\Entity\UserAuth
+ * @extends \XF\Entity\UserAuth
  *
- * @package SV\PasswordTools\XF\Entity
- * @property int|null sv_pwned_password_check
+ * @property int|null $sv_pwned_password_check
  */
 class UserAuth extends XFCP_UserAuth
 {
