@@ -130,6 +130,8 @@ class UserAuth extends XFCP_UserAuth
         $pwnedPassword = $this->isPwnedPassword($password, $useCount, false);
         if ($pwnedPassword)
         {
+            $this->setOption('svNagOnWeakPassword', $useCount);
+
             $this->error(\XF::phrase('svPasswordTools_password_known_to_be_compromised_on_at_least_x_accounts', [
                 'count'          => $useCount,
                 'countFormatted' => \XF::language()->numberFormat($useCount)
@@ -141,9 +143,51 @@ class UserAuth extends XFCP_UserAuth
         return true;
     }
 
+    protected function checkPasswordWithKnownBad(string $password): bool
+    {
+        if ($this->isPasswordEmailOrUsername($password))
+        {
+            $this->error(\XF::phrase('svPasswordTools_password_must_not_contain_your_email_address_or_username', [
+            ]), 'password');
+
+            return false;
+        }
+
+        if ($this->isPasswordSiteInfo($password))
+        {
+            $this->error(\XF::phrase('svPasswordTools_password_must_not_contain_site_information', [
+            ]), 'password');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isPasswordEmailOrUsername(string $password): bool
+    {
+        // people using emails/usernames as password is :|
+        $email = $this->User->email;
+        $username = $this->User->username;
+
+        return mb_stripos($email, $password) !== false
+               || mb_stripos($username, $password) !== false
+        ;
+    }
+
+    public function isPasswordSiteInfo(string $password): bool
+    {
+        $options = \XF::options();
+
+        return mb_stripos($options->boardTitle, $password) !== false
+               || mb_stripos($options->boardUrl, $password) !== false
+            ;
+    }
+
     public function isPwnedPassword(string $password, int &$useCount, bool $cacheOnly): bool
     {
         $options = \XF::options();
+
         $minimumUsages = (int)($options->svPwnedPasswordReuseCount ?? 0);
         $minimumUsagesSoft = (int)($options->svPwnedPasswordReuseCountSoft ?? 0);
 
@@ -173,10 +217,38 @@ class UserAuth extends XFCP_UserAuth
             return true;
         }
 
+        $minimumUsagesSoft = (int)(\XF::options()->svPwnedPasswordReuseCountSoft ?? 0);
         if ($minimumUsagesSoft !== 0 && $useCount >= $minimumUsagesSoft)
         {
             $this->setOption('svResetPwnedPasswordCheck', false);
             $this->setOption('svNagOnWeakPassword', $useCount);
+        }
+
+        return false;
+    }
+
+    public function isCompromisedPassword(string $password, int &$useCount): bool
+    {
+        if ($this->isPwnedPassword($password, $useCount, false))
+        {
+            return true;
+        }
+
+        if (!(\XF::options()->svOnLoginConsiderKnownBadAsCompromised ?? false))
+        {
+            return false;
+        }
+
+        if ($this->isPasswordEmailOrUsername($password))
+        {
+            $useCount = 1;
+            return true;
+        }
+
+        if ($this->isPasswordSiteInfo($password))
+        {
+            $useCount = 1;
+            return true;
         }
 
         return false;

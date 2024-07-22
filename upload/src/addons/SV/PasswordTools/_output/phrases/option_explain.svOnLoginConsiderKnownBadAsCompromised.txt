@@ -1,0 +1,1 @@
+Catches passwords which contain user's name or email, or the site's name or url.

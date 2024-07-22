@@ -48,16 +48,17 @@ class Login extends XFCP_Login
             return $user;
         }
 
-        // the pwned password check needs to run after the password validation, but before the 2fa check
+        // the known compromised/pwned password check needs to run after the password validation, but before the 2fa check
         // otherwise the 'Force email two-factor authentication on compromised password' option will not reliably trigger
         try
         {
-            $useCount = 0;
-            if ($auth->isPwnedPassword($password, $useCount, false))
+            $useCount = 1;
+            if ($auth->isCompromisedPassword($password, $useCount))
             {
                 $db = \XF::db();
                 $db->beginTransaction();
 
+                $auth->setOption('svNagOnWeakPassword', $useCount);
                 $auth->flagPwnedPasswordCheck();
                 if ($pwnedPasswordGroupId !== 0 && !$user->isMemberOf($pwnedPasswordGroupId))
                 {
