@@ -16,6 +16,7 @@ namespace SV\PasswordTools\XF\Entity
 namespace SV\PasswordTools\XF\Repository
 {
 	class XFCP_Tfa extends \XF\Repository\Tfa {}
+	class XFCP_User extends \XF\Repository\User {}
 }
 
 namespace SV\PasswordTools\XF\Service\User
