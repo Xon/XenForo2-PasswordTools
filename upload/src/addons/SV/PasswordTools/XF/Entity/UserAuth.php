@@ -166,9 +166,15 @@ class UserAuth extends XFCP_UserAuth
 
     public function isPasswordEmailOrUsername(string $password): bool
     {
+        // on registration user might not be set yet
+        $user = $this->User;
+        if ($user === null)
+        {
+            return false;
+        }
         // people using emails/usernames as password is :|
-        $email = $this->User->email;
-        $username = $this->User->username;
+        $email = $user->email;
+        $username = $user->username;
 
         return mb_stripos($email, $password) !== false
                || mb_stripos($username, $password) !== false
