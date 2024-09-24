@@ -11,6 +11,8 @@ use XF\AddOn\StepRunnerUpgradeTrait;
 use XF\Db\Schema\Alter;
 use XF\Db\Schema\Create;
 use XF\Entity\Option as OptionEntity;
+use XF\Entity\UserGroup as UserGroupEntity;
+use XF\Finder\UserGroup as UserGroupFinder;
 
 class Setup extends AbstractSetup
 {
@@ -44,6 +46,47 @@ class Setup extends AbstractSetup
                 $sm->alterTable($tableName, $callback);
             }
         }
+    }
+
+    protected $userGroupTitle = 'User has compromised password';
+
+    public function installStep3(): void
+    {
+        $userGroup = Helper::finder(UserGroupFinder::class)
+                           ->where('title', $this->userGroupTitle)
+                           ->fetchOne();
+        if ($userGroup === null)
+        {
+            $userGroup = Helper::createEntity(UserGroupEntity::class);
+            $userGroup->title = $this->userGroupTitle;
+            $userGroup->save();
+        }
+
+        // for testing
+        $this->updateCompromisedUserGroupLink();
+    }
+
+    protected function updateCompromisedUserGroupLink(): void
+    {
+        $option = Helper::find(OptionEntity::class, 'svPwnedPasswordGroup');
+        if ($option !== null && !$option->option_value)
+        {
+            $userGroup = Helper::finder(UserGroupFinder::class)
+                               ->where('title', $this->userGroupTitle)
+                               ->fetchOne();
+            if ($userGroup !== null)
+            {
+                $option->option_value = $userGroup->user_group_id;
+                $option->saveIfChanged();
+            }
+        }
+    }
+
+    public function postInstall(array &$stateChanges)
+    {
+        parent::postInstall($stateChanges);
+
+        $this->updateCompromisedUserGroupLink();
     }
 
     public function upgrade2000000Step1(): void
