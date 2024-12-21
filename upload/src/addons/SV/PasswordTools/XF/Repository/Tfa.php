@@ -3,7 +3,7 @@
 namespace SV\PasswordTools\XF\Repository;
 
 use SV\PasswordTools\Globals;
-use SV\PasswordTools\XF\Entity\UserAuth;
+use SV\PasswordTools\XF\Entity\User as ExtendedUserEntity;
 use SV\StandardLib\Helper;
 use XF\Db\DuplicateKeyException;
 use XF\Db\Exception as DbException;
@@ -21,22 +21,26 @@ class Tfa extends XFCP_Tfa
 {
     public function isSvForcedEmail2fa(UserEntity $user, ?string $trustKey = null): bool
     {
-        /** @var UserAuth $auth */
+        /** @var ExtendedUserEntity $user */
         $auth = $user->Auth;
-        if ($auth === null || $user->Option === null)
+        $option = $user->Option;
+        if ($auth === null || $option === null)
         {
             // damaged account configuration
             return false;
         }
 
-        if (!$auth->svIsForceEmail2Fa())
+        if (!$user->isForcing2Fa())
         {
-            return false;
-        }
+            if (!$auth->svIsForceEmail2Fa())
+            {
+                return false;
+            }
 
-        if (!$auth->hasPwnedPassword())
-        {
-            return false;
+            if (!$auth->hasPwnedPassword())
+            {
+                return false;
+            }
         }
 
         $tfaTrustRepo = Helper::repository(UserTfaTrustedRepo::class);
@@ -64,7 +68,7 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        if ($user->Option->use_tfa)
+        if ($option->use_tfa)
         {
             Globals::$forceEmail2FA = true;
             try

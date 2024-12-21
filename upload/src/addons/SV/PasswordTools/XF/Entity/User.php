@@ -28,4 +28,9 @@ class User extends XFCP_User
             $this->Auth->resetOption('svAdminEdit');
         }
     }
+
+    public function isForcing2Fa(): bool
+    {
+        return $this->hasPermission('general', 'svForceTfa');
+    }
 }
