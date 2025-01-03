@@ -113,7 +113,20 @@ class Tfa extends XFCP_Tfa
             {
                 $this->addEmail2faRecord($user, []);
             }
-            $option->fastUpdate('use_tfa', true);
+
+            $db = \XF::db();
+            $db->beginTransaction();
+            $db->query('update xf_user_option set use_tfa = 1 where user_id = ?', [$user->user_id]);
+            // Force all other sessions to be logged out
+            $db->query('update xf_user_profile set password_date = ? where user_id = ?', [\XF::$time, $user->user_id]);
+            $db->commit();
+
+            try
+            {
+                $option->setTrusted('use_tfa', true);
+                $user->Profile->setTrusted('password_date', \XF::$time);
+            }
+            catch(\Exception $e) {}
         }
 
         return true;
