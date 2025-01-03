@@ -39,6 +39,25 @@ class TfaProvider extends XFCP_TfaProvider
         return $enabled;
     }
 
+    public function canDisable($userId = null)
+    {
+        $userId = $userId ?? \XF::visitor()->user_id;
+        if ($this->provider_id === 'email')
+        {
+            /** @var \XF\Entity\UserTfa|null $userEntry */
+            $userEntry = $this->UserEntries[$userId];
+            /** @var User|null $user */
+            $user = $userEntry !== null ? $userEntry->User : null;
+            if ($user !== null && $user->is2faForceEnabled)
+            {
+                return false;
+            }
+        }
+
+        return parent::canDisable($userId);
+    }
+
+
     /**
      * @param int|null $userId
      * @return array|null

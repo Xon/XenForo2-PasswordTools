@@ -30,7 +30,8 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        if (!$user->isForcing2Fa())
+        $isForcing2Fa = $user->isForcing2Fa();
+        if (!$isForcing2Fa)
         {
             if (!$auth->svIsForceEmail2Fa())
             {
@@ -102,6 +103,17 @@ class Tfa extends XFCP_Tfa
             }
 
             return false;
+        }
+        else if ($isForcing2Fa)
+        {
+            // force 2fa enabled, and ensure email 2fa is also enabled as a fallback
+            $providers = parent::getAvailableProvidersForUser($user->user_id);
+            unset($providers['backup']);
+            if (count($providers) === 0)
+            {
+                $this->addEmail2faRecord($user, []);
+            }
+            $option->fastUpdate('use_tfa', true);
         }
 
         return true;
