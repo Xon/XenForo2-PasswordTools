@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf86f6bfd2051c65d55daa4930beb141",
+    "content-hash": "305e8e4fc5583998728e513c9f148234",
     "packages": [
         {
             "name": "bjeavons/zxcvbn-php",
-            "version": "1.3.1",
+            "version": "1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Xon/zxcvbn-php.git",
-                "reference": "php84"
+                "reference": "fork"
             },
             "type": "library",
             "autoload": {
