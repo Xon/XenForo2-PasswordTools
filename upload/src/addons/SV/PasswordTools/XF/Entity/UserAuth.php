@@ -174,11 +174,18 @@ class UserAuth extends XFCP_UserAuth
         }
         // people using emails/usernames as password is :|
         $email = $user->email;
-        $username = $user->username;
+        if ($email !== null && mb_stripos($email, $password) !== false)
+        {
+            return true;
+        }
 
-        return mb_stripos($email, $password) !== false
-               || mb_stripos($username, $password) !== false
-        ;
+        $username = $user->username;
+        if ($username !== null && mb_stripos($username, $password) !== false)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public function isPasswordSiteInfo(string $password): bool
