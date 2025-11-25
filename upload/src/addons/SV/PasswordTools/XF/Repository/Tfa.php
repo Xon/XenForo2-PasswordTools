@@ -50,8 +50,7 @@ class Tfa extends XFCP_Tfa
             return false;
         }
 
-        /** @var TfaProviderEntity $email2FaProvider */
-        $email2FaProvider = $this->app()->find('XF:TfaProvider', 'email');
+        $email2FaProvider = Helper::find(TfaProviderEntity::class, 'email');
         $handler = $email2FaProvider->handler ?? null;
         if ($handler === null || $handler->requiresConfig() || !$handler->canEnable())
         {
@@ -153,8 +152,7 @@ class Tfa extends XFCP_Tfa
     /** @noinspection PhpMissingReturnTypeInspection */
     public function getAvailableProvidersForUser($userId)
     {
-        /** @var UserEntity $user */
-        $user = $this->app()->find('XF:User', $userId);
+        $user = Helper::find(UserEntity::class, $userId);
 
         Globals::$forceEmail2FA = $user !== null && $this->isSvForcedEmail2fa($user);
         try
