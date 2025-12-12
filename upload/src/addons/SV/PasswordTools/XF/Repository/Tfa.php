@@ -190,8 +190,7 @@ class Tfa extends XFCP_Tfa
 
     protected function addEmail2faRecord(UserEntity $user, array $config): UserTfaEntity
     {
-        /** @var UserTfaEntity $userTfa */
-        $userTfa = $this->em->create('XF:UserTfa');
+        $userTfa = Helper::createEntity(UserTfaEntity::class);
 
         // signal this is a tainted email provider until it gets enabled explicitly
         $config['np_enabled_as_fallback'] = true;
@@ -214,11 +213,10 @@ class Tfa extends XFCP_Tfa
             {
                 throw $e;
             }
-            $userTfa = $this->app()
-                            ->finder('XF:UserTfa')
-                            ->where('user_id', $user->user_id)
-                            ->where('provider_id', 'email')
-                            ->fetchOne();
+            $userTfa = Helper::findOne(UserTfaEntity::class, [
+                'user_id' => $user->user_id,
+                'provider_id' => 'email',
+            ]);
         }
 
         // probably not needed
