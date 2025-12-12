@@ -309,7 +309,7 @@ class UserAuth extends XFCP_UserAuth
         try
         {
             $response = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
-                'timeout' => 2,
+                'timeout' => 1,
                 'headers' => [
                     'User-Agent' => 'XenForo/' . \XF::$version . '(' . $options->boardUrl . ')'
                 ]
