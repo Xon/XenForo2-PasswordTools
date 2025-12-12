@@ -2,14 +2,14 @@
 
 namespace SV\PasswordTools\Option;
 
-use XF\Entity\Option;
+use XF\Entity\Option as OptionEntity;
 use XF\Option\AbstractOption;
 use function count;
 use function trim, strlen;
 
 class BlacklistPassword extends AbstractOption
 {
-    public static function renderOption(Option $option, array $htmlParams): string
+    public static function renderOption(OptionEntity $option, array $htmlParams): string
     {
         $choices = [];
         foreach ($option->option_value as $word)

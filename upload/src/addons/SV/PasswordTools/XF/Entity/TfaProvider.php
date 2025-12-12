@@ -6,6 +6,8 @@
 namespace SV\PasswordTools\XF\Entity;
 
 use SV\PasswordTools\Globals;
+use XF\Entity\UserTfa as UserTfaEntity;
+use SV\PasswordTools\XF\Entity\User as ExtendedUserEntity;
 
 /**
  * @extends \XF\Entity\TfaProvider
@@ -44,13 +46,16 @@ class TfaProvider extends XFCP_TfaProvider
         $userId = $userId ?? \XF::visitor()->user_id;
         if ($this->provider_id === 'email')
         {
-            /** @var \XF\Entity\UserTfa|null $userEntry */
+            /** @var UserTfaEntity|null $userEntry */
             $userEntry = $this->UserEntries[$userId];
-            /** @var User|null $user */
-            $user = $userEntry !== null ? $userEntry->User : null;
-            if ($user !== null && $user->is2faForceEnabled)
+            if ($userEntry !== null)
             {
-                return false;
+                /** @var ExtendedUserEntity|null $user */
+                $user = $userEntry->User;
+                if ($user !== null && $user->is2faForceEnabled)
+                {
+                    return false;
+                }
             }
         }
 
