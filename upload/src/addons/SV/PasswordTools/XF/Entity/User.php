@@ -5,6 +5,7 @@ namespace SV\PasswordTools\XF\Entity;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Structure;
 use XF\Repository\Tfa as TfaRepo;
+use function count;
 
 /**
  * @extends \XF\Entity\User

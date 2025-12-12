@@ -11,6 +11,7 @@ use ZxcvbnPhp\Matchers\DictionaryMatch;
 use ZxcvbnPhp\Zxcvbn;
 use function is_callable, mb_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 use function json_encode;
+use function mb_stripos;
 use function strlen;
 
 /**
