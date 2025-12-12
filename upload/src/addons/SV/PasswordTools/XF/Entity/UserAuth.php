@@ -306,6 +306,7 @@ class UserAuth extends XFCP_UserAuth
         }
 
         $suffixCount = [];
+        $error = null;
         try
         {
             $response = $this->app()->http()->reader()->getUntrusted('https://api.pwnedpasswords.com/range/' . $prefix, [], null, [
