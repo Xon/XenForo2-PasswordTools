@@ -8,6 +8,11 @@
  * @noinspection PhpIllegalPsrClassPathInspection
  */
 
+namespace SV\PasswordTools\XF\Admin\Controller
+{
+	class XFCP_Tools extends \XF\Admin\Controller\Tools {}
+}
+
 namespace SV\PasswordTools\XF\Entity
 {
 	class XFCP_TfaProvider extends \XF\Entity\TfaProvider {}

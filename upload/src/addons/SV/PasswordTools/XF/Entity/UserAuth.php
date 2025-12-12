@@ -2,13 +2,17 @@
 
 namespace SV\PasswordTools\XF\Entity;
 
+use Closure;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Structure;
+use XF\Phrase;
 use XF\Repository\UserAlert as UserAlertRepo;
 use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use XF\Util\Php;
 use ZxcvbnPhp\Matchers\DictionaryMatch;
 use ZxcvbnPhp\Zxcvbn;
+use function array_values;
+use function count;
 use function hash;
 use function is_callable, mb_strlen, array_merge, strtoupper, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 use function json_encode;
@@ -24,7 +28,7 @@ class UserAuth extends XFCP_UserAuth
 {
     protected $svZxcvbnMaxPasswordLength = 256;
 
-    public function svCheckPasswordOnSet(string $password, int $updatePasswordDate, \Closure $parentCallable): bool
+    public function svCheckPasswordOnSet(string $password, int $updatePasswordDate, Closure $parentCallable): bool
     {
         if (!$updatePasswordDate || $this->getOption('svAutomatedEdit'))
         {
@@ -65,6 +69,64 @@ class UserAuth extends XFCP_UserAuth
         //return parent::setPassword($password, $authClass, $updatePasswordDate, $allowReuse);
         return $parentCallable();
     }
+
+    public function doPasswordChecks(string $password, array &$errors, array &$warnings): bool
+    {
+        if ($password === '')
+        {
+            $errors[] = \XF::phrase('svPasswordTools_password.empty');
+            return false;
+        }
+
+        $checkTypes = array_merge([
+            'length' => false,
+            'zxcvbn' => false,
+            'pwned' => false,
+            'known_bad' => false,
+        ], \XF::options()->svPasswordToolsCheckTypes ?? []);
+
+        foreach ($checkTypes as $checkType => $check)
+        {
+            $checkMethodFunc = [$this, 'checkPasswordWith' . Php::camelCase($checkType)];
+            if (is_callable($checkMethodFunc))
+            {
+                $checkMethodFunc($password);
+            }
+
+            if ($check)
+            {
+                $errors = array_merge($errors, array_values($this->getErrors()));
+            }
+            else
+            {
+                $warnings = array_merge($warnings, array_values($this->getErrors()));
+            }
+
+            $this->_errors = [];
+        }
+
+        foreach ([&$errors, &$warnings] as &$list)
+        {
+            foreach ($list as &$item)
+            {
+                if ($item instanceof Phrase)
+                {
+                    switch ($item->getName())
+                    {
+                        case 'svPasswordStrengthMeter_error_TooWeak':
+                            $item = \XF::phrase('svPasswordTools_password.weak');
+                            break;
+                        case 'svPasswordTools_password_must_not_contain_your_email_address_or_username':
+                            $item = \XF::phrase('svPasswordTools_password.email_or_username');
+                            break;
+                    }
+                }
+            }
+        }
+
+        return count($errors) === 0;
+    }
+
 
     protected function checkPasswordWithLength(string $password): bool
     {

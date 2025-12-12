@@ -2,6 +2,7 @@
 
 namespace SV\PasswordTools;
 
+use SV\PasswordTools\Repository\PasswordToolsRepository;
 use SV\StandardLib\Helper;
 use SV\StandardLib\InstallerHelper;
 use XF\AddOn\AbstractSetup;
@@ -87,6 +88,20 @@ class Setup extends AbstractSetup
         parent::postInstall($stateChanges);
 
         $this->updateCompromisedUserGroupLink();
+        PasswordToolsRepository::get()->shimAdminNavigation();
+    }
+
+    public function postUpgrade($previousVersion, array &$stateChanges): void
+    {
+        $previousVersion = (int)$previousVersion;
+        parent::postUpgrade($previousVersion, $stateChanges);
+        PasswordToolsRepository::get()->shimAdminNavigation();
+    }
+
+    public function postRebuild(): void
+    {
+        parent::postRebuild();
+        PasswordToolsRepository::get()->shimAdminNavigation();
     }
 
     public function upgrade2000000Step1(): void
