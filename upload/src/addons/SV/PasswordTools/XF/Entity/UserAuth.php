@@ -9,7 +9,8 @@ use XF\Service\User\UserGroupChange as UserGroupChangeService;
 use XF\Util\Php;
 use ZxcvbnPhp\Matchers\DictionaryMatch;
 use ZxcvbnPhp\Zxcvbn;
-use function is_callable, mb_strlen, array_merge, strtoupper, sha1, substr, json_decode, is_array, array_filter,array_map,explode,trim;
+use function hash;
+use function is_callable, mb_strlen, array_merge, strtoupper, substr, json_decode, is_array, array_filter,array_map,explode,trim;
 use function json_encode;
 use function mb_stripos;
 use function strlen;
@@ -69,7 +70,7 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = \XF::options();
 
-        $minLength = (int)($options->svPasswordStrengthMeter_min ?? 8);
+        $minLength = $options->svPasswordStrengthMeter_min ?? 8;
         if (mb_strlen($password) < $minLength)
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_Password_must_be_X_characters', [
@@ -101,7 +102,7 @@ class UserAuth extends XFCP_UserAuth
         $blackList = array_merge(($options->svPasswordStrengthMeter_blacklist ?? []), [$options->boardTitle]);
         $result = $zxcvbn->passwordStrength($password, $blackList);
 
-        if ($result['score'] < (int)($options->svPasswordStrengthMeter_str ?? 0))
+        if ($result['score'] < ($options->svPasswordStrengthMeter_str ?? 0))
         {
             $this->error(\XF::phrase('svPasswordStrengthMeter_error_TooWeak'), 'password');
 
@@ -202,15 +203,15 @@ class UserAuth extends XFCP_UserAuth
     {
         $options = \XF::options();
 
-        $minimumUsages = (int)($options->svPwnedPasswordReuseCount ?? 0);
-        $minimumUsagesSoft = (int)($options->svPwnedPasswordReuseCountSoft ?? 0);
+        $minimumUsages = $options->svPwnedPasswordReuseCount ?? 0;
+        $minimumUsagesSoft = $options->svPwnedPasswordReuseCountSoft ?? 0;
 
         if ($minimumUsages < 1 && $minimumUsagesSoft < 1)
         {
             return false;
         }
 
-        $hash = strtoupper(sha1($password));
+        $hash = strtoupper(hash('sha1', $password));
         $prefix = substr($hash, 0, 5);
         $suffix = substr($hash, 5);
         $suffixSet = $this->getPwnedPrefixMatches($prefix, null, $cacheOnly);
@@ -231,7 +232,7 @@ class UserAuth extends XFCP_UserAuth
             return true;
         }
 
-        $minimumUsagesSoft = (int)(\XF::options()->svPwnedPasswordReuseCountSoft ?? 0);
+        $minimumUsagesSoft = \XF::options()->svPwnedPasswordReuseCountSoft ?? 0;
         if ($minimumUsagesSoft !== 0 && $useCount >= $minimumUsagesSoft)
         {
             $this->setOption('svResetPwnedPasswordCheck', false);
@@ -275,7 +276,7 @@ class UserAuth extends XFCP_UserAuth
 
         if ($cacheCutoff === null)
         {
-            $pwnedPasswordCacheTime = (int)($options->svPwnedPasswordCacheTime ?? 7);
+            $pwnedPasswordCacheTime = $options->svPwnedPasswordCacheTime ?? 7;
             if ($pwnedPasswordCacheTime > 0)
             {
                 $cacheCutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;

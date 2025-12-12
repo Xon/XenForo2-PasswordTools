@@ -32,17 +32,17 @@ class Login extends XFCP_Login
         }
 
         $options = \XF::options();
-        $alertOnCompromisedPassword = (bool)($options->svAlertOnCompromisedPasswordOnLogin ?? true);
-        $forcePasswordResetOnCompromisedPassword = (bool)($options->svPwnedPasswordForcePasswordReset ?? false);
-        $pwnedPasswordGroupId = (int)($options->svPwnedPasswordGroup ?? 0);
+        $alertOnCompromisedPassword = $options->svAlertOnCompromisedPasswordOnLogin ?? true;
+        $forcePasswordResetOnCompromisedPassword = $options->svPwnedPasswordForcePasswordReset ?? false;
+        $pwnedPasswordGroupId = $options->svPwnedPasswordGroup ?? 0;
         $forceEmail2fa = $auth->svIsForceEmail2Fa();
         // If sv_pwned_password_check is non-empty, this implies the last compromised password check failed
         // The value will be reset to null on the next password change, allowing 2fa to be forced if configured without additional compromised password checks
         $lastPwnedPasswordCheck = $auth->sv_pwned_password_check ?? 0;
-        $recurring = (int)($options->svPwnedPasswordAlertRecurring ?? 24) * 60*60;
+        $recurring = ($options->svPwnedPasswordAlertRecurring ?? 24) * 60 * 60;
         $sendCompromisedPasswordAlert = $alertOnCompromisedPassword && ($lastPwnedPasswordCheck + $recurring < \XF::$time);
 
-        // Only do pwnedpassword checks if required
+        // Only do compromise password checks if required
         if (!$sendCompromisedPasswordAlert && !$forcePasswordResetOnCompromisedPassword && !$forceEmail2fa && $pwnedPasswordGroupId === 0)
         {
             return $user;
