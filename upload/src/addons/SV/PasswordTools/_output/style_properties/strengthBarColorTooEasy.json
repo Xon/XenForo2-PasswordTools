@@ -6,9 +6,11 @@
     "css_components": [],
     "value_type": "color",
     "value_parameters": "",
-    "has_variations": false,
+    "has_variations": true,
     "depends_on": "",
     "value_group": "",
-    "property_value": "rgb(134, 52, 24)",
+    "property_value": {
+        "default": "rgb(134, 52, 24)"
+    },
     "display_order": 5
 }
