@@ -3,7 +3,7 @@
     "title": "Password Tools",
     "description": "Cause safer passwords are better passwords",
     "version_id": 1765550424,
-    "version_string": "3.14.0",
+    "version_string": "3.13.1",
     "dev": "Atelier Aphelion",
     "dev_url": "https://atelieraphelion.com",
     "faq_url": "",
@@ -14,8 +14,8 @@
     },
     "require": {
         "SV/StandardLib": [
-            2001230000,
-            "Standard Library by Xon v1.23.0+"
+            2001220000,
+            "Standard Library by Xon v1.22.0+"
         ],
         "XF": [
             "2.1.0",
