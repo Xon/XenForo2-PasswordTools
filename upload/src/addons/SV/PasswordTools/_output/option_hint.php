@@ -11,6 +11,7 @@
 namespace XF;
 
 /**
+ * @property non-negative-int|null $sv2faExpiryTime Custom 2fa device trust lifetime
  * @property bool|null $svAlertOnCompromisedPasswordOnLogin On login; alert the user if they have a known compromised password
  * @property bool|null $svEnforcePasswordComplexityForAdmins Enforce password complexity for admins
  * @property bool|null $svOnLoginConsiderKnownBadAsCompromised On login; consider known-bad passwords as compromised
