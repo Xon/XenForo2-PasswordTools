@@ -2,9 +2,7 @@
   "additional_files": [
     "js/sv/passwordtools"
   ],
-  "minify": [
-    "js/sv/passwordtools/password_box.js"
-  ],
+  "minify": "*",
   "exec": [
     "composer install --working-dir=_build/upload/src/addons/{addon_id}/ --no-dev --optimize-autoloader",
     "rm -v -r _build/upload/src/addons/{addon_id}/composer.json",
