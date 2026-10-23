@@ -339,19 +339,19 @@ class UserAuth extends XFCP_UserAuth
         if ($cacheCutoff === null)
         {
             $pwnedPasswordCacheTime = $options->svPwnedPasswordCacheTime ?? 7;
-            if ($pwnedPasswordCacheTime > 0)
-            {
-                $cacheCutoff = \XF::$time - $pwnedPasswordCacheTime * 86400;
-            }
+            $cacheCutoff = $pwnedPasswordCacheTime > 0 ? \XF::$time - $pwnedPasswordCacheTime * 86400 : 0;
         }
 
         $cacheCutoff = (int)$cacheCutoff;
-        $suffixes = $db->fetchOne(
-            'SELECT suffixes
-                    FROM xf_sv_pwned_hash_cache
-                    WHERE prefix = ?
-                      AND last_update > ?', [$prefix, $cacheCutoff]
-        );
+        if ($cacheCutoff > 0)
+        {
+            $suffixes = $db->fetchOne('
+                SELECT suffixes
+                FROM xf_sv_pwned_hash_cache
+                WHERE prefix = ?
+                  AND last_update > ?', [$prefix, $cacheCutoff]
+            );
+        }
 
         if ($suffixes)
         {
@@ -422,12 +422,15 @@ class UserAuth extends XFCP_UserAuth
 
             return null;
         }
-        $db->query('INSERT INTO xf_sv_pwned_hash_cache (prefix, suffixes, last_update)
-          VALUES (?,?,?)
-          ON DUPLICATE KEY UPDATE
-            suffixes = VALUES(suffixes),
-            last_update = VALUES(last_update)
-         ', [$prefix, json_encode($suffixCount), \XF::$time]);
+        if ($cacheCutoff > 0)
+        {
+            $db->query('INSERT INTO xf_sv_pwned_hash_cache (prefix, suffixes, last_update)
+              VALUES (?,?,?)
+              ON DUPLICATE KEY UPDATE
+                suffixes = VALUES(suffixes),
+                last_update = VALUES(last_update)
+             ', [$prefix, json_encode($suffixCount), \XF::$time]);
+        }
 
         return $suffixCount;
     }

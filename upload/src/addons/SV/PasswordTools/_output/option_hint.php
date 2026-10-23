@@ -22,7 +22,7 @@ namespace XF;
  * @property int|null $svPasswordStrengthMeter_str Minimum password strength
  * @property array{length: bool, zxcvbn: bool, pwned: bool, known_bad: bool}|null $svPasswordToolsCheckTypes New password validation rules
  * @property int|null $svPwnedPasswordAlertRecurring Minimum time between triggering compromised password alerts on login
- * @property int|null $svPwnedPasswordCacheTime Pwned password cache time
+ * @property non-negative-int|null $svPwnedPasswordCacheTime Pwned password cache time
  * @property bool|null $svPwnedPasswordForceEmail2FA Force email two factor authentication on compromised password
  * @property bool|null $svPwnedPasswordForcePasswordReset Force password reset on compromised password
  * @property non-negative-int|null $svPwnedPasswordGroup User-group for compromised passwords
