@@ -5,12 +5,18 @@ namespace SV\PasswordTools\Job;
 use XF\Job\AbstractJob;
 use XF\Job\JobResult;
 use function max;
+use function microtime;
 
 class PasswordCleanup extends AbstractJob
 {
+    public const MAX_BATCH_SIZE = 50000;
+    public const INITIAL_BATCH_SIZE = 1000;
+
     protected $defaultData = [
         'cutOff' => null,
-        'batch'  => 50000,
+        'steps' => 0,
+        'start' => 0,
+        'batch' => self::INITIAL_BATCH_SIZE,
     ];
 
     public static function enqueue(?int $cutOff = null): void
@@ -22,7 +28,7 @@ class PasswordCleanup extends AbstractJob
 
         \XF::app()->jobManager()->enqueueLater('pruneSvPasswordHashCache', \XF::$time + 1, PasswordCleanup::class, [
             'cutOff' => $cutOff,
-            'batch' => 10000,
+            'batch' => self::INITIAL_BATCH_SIZE,
         ]);
     }
 
@@ -38,6 +44,10 @@ class PasswordCleanup extends AbstractJob
             return $this->complete();
         }
 
+        $start = microtime(true);
+
+        $this->data['steps']++;
+
         $db = \XF::db();
         $statement = $db->query($db->limit('
             DELETE
@@ -49,6 +59,9 @@ class PasswordCleanup extends AbstractJob
         {
             return $this->complete();
         }
+        $done = $statement->rowsAffected();
+
+        $this->data['batch'] = $this->calculateOptimalBatch($this->data['batch'], $done, $start, $maxRunTime, self::MAX_BATCH_SIZE);
 
         return $this->resume();
     }
