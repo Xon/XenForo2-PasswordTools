@@ -8,6 +8,6 @@ class CleanUp
 {
     public static function runDailyCleanUp()
     {
-        \XF::app()->jobManager()->enqueueLater('pruneSvPasswordHashCache', \XF::$time + 1, PasswordCleanup::class, []);
+        PasswordCleanup::enqueue();
     }
 }
